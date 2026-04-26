@@ -1,4 +1,4 @@
-import HelperFunctions as help
+from . import HelperFunctions as help
 
 CANNED_GESTURE_OPTIONS = {
     "display_names_locale": "en",
@@ -9,9 +9,18 @@ CANNED_GESTURE_OPTIONS = {
 }
 
 def recognize_hand_gesture(hand_lms, options=None):
+    """
+    Recognize 5 high-confidence hand gestures:
+    1. Closed_Fist - All fingers down
+    2. Open_Palm - All fingers up
+    3. Pointing_Up - Only index up
+    4. Thumb_Up - Only thumb up
+    5. Victory - Index and middle up
+    """
     options = options or CANNED_GESTURE_OPTIONS
     landmarks = hand_lms.landmark
 
+    # Detect if fingers are extended (tip above middle joint)
     thumb_extended = help.get_normalized_distance(landmarks[4], landmarks[0]) > help.get_normalized_distance(landmarks[3], landmarks[0])
     index_extended = landmarks[8].y < landmarks[6].y
     middle_extended = landmarks[12].y < landmarks[10].y
@@ -21,21 +30,27 @@ def recognize_hand_gesture(hand_lms, options=None):
     gesture_name = "None"
     score = 1.0
 
-    if not any([thumb_extended, index_extended, middle_extended, ring_extended, pinky_extended]):
-        gesture_name = "Closed_Fist"
+    # Order matters - check most specific gestures first
+    
+    # Pointing_Up: Only index extended (highest priority for index-only)
+    if index_extended and not any([thumb_extended, middle_extended, ring_extended, pinky_extended]):
+        gesture_name = "Pointing_Up"
+    
+    # Thumb_Up: Only thumb extended
+    elif thumb_extended and not any([index_extended, middle_extended, ring_extended, pinky_extended]):
+        gesture_name = "Thumb_Up"
+    
+    # Victory: Index and middle extended, others down
+    elif index_extended and middle_extended and not any([thumb_extended, ring_extended, pinky_extended]):
+        gesture_name = "Victory"
+    
+    # Open_Palm: All fingers extended (check after specific gestures)
     elif all([thumb_extended, index_extended, middle_extended, ring_extended, pinky_extended]):
         gesture_name = "Open_Palm"
-    elif index_extended and not any([middle_extended, ring_extended, pinky_extended, thumb_extended]):
-        gesture_name = "Pointing_Up"
-    elif thumb_extended and not any([index_extended, middle_extended, ring_extended, pinky_extended]):
-        if landmarks[4].y < landmarks[3].y:
-            gesture_name = "Thumb_Up"
-        elif landmarks[4].y > landmarks[3].y:
-            gesture_name = "Thumb_Down"
-    elif index_extended and middle_extended and not any([ring_extended, pinky_extended]):
-        gesture_name = "Victory"
-    elif thumb_extended and index_extended and pinky_extended and not any([middle_extended, ring_extended]):
-        gesture_name = "ILoveYou"
+    
+    # Closed_Fist: No fingers extended (most common state)
+    elif not any([thumb_extended, index_extended, middle_extended, ring_extended, pinky_extended]):
+        gesture_name = "Closed_Fist"
 
     allowlist = set(options.get("category_allowlist", []))
     denylist = set(options.get("category_denylist", []))
