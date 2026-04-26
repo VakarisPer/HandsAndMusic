@@ -22,7 +22,6 @@ class HandTracker:
         self.gesture_info = []
     
     def capture_frame(self):
-        """Capture and preprocess a frame from the webcam"""
         ret, frame = self.capture.read()
         if not ret:
             return False
@@ -33,7 +32,6 @@ class HandTracker:
         return True
     
     def detect_hands(self):
-        """Detect hand landmarks in the current frame"""
         if self.current_frame is None:
             return False
         
@@ -43,7 +41,6 @@ class HandTracker:
         return len(self.hand_landmarks) > 0
     
     def draw_landmarks(self):
-        """Draw hand landmarks and connections on the current frame"""
         if self.current_frame is None or not self.hand_landmarks:
             return
         
@@ -58,7 +55,6 @@ class HandTracker:
             )
     
     def analyze_gestures(self):
-        """Analyze and store gesture information for all detected hands"""
         if self.current_frame is None or not self.hand_landmarks:
             return
         
@@ -81,36 +77,6 @@ class HandTracker:
                 'landmarks': hand_lms
             })
     
-    def draw_gesture_info(self):
-        """Draw gesture information and landmarks on the frame"""
-        if self.current_frame is None or not self.gesture_info:
-            return
-        
-        h, w, _ = self.current_frame.shape
-        
-        for idx, info in enumerate(self.gesture_info):
-            # Draw gesture text
-            y_offset = 90 + (idx * 30)
-            cv2.putText(self.current_frame, 
-                       f"Gesture: {info['gesture']} ({info['score']:.1f})", 
-                       (50, y_offset),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-            
-            # Check thumb-index distance
-            if info['thumb_index_distance'] < 30:
-                cv2.putText(self.current_frame, "COLLISION", (200, 200),
-                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            
-            # Draw landmark circles
-            landmarks = info['landmarks']
-            if landmarks is not None:
-                thumb_pos = (int(landmarks.landmark[4].x * w), int(landmarks.landmark[4].y * h))
-                index_pos = (int(landmarks.landmark[8].x * w), int(landmarks.landmark[8].y * h))
-
-            if(len(self.hand_landmarks) > 0):
-                cv2.circle(self.current_frame, thumb_pos, 10, (255, 0, 255), -1)
-                cv2.circle(self.current_frame, index_pos, 10, (255, 0, 255), -1)
-
     def get_gesture_name(self, hand_index=0):
         """Get the recognized gesture name for a specific hand index"""
         if hand_index < len(self.gesture_info):
@@ -131,7 +97,6 @@ class HandTracker:
         return None
     
     def get_frame_dimensions(self):
-        """Get current frame dimensions"""
         if self.current_frame is not None:
             h, w, _ = self.current_frame.shape
             return (w, h)
@@ -146,7 +111,6 @@ class HandTracker:
         self.detect_hands()
         self.draw_landmarks()
         self.analyze_gestures()
-        self.draw_gesture_info()
         return True
     
     def get_frame(self):
@@ -154,7 +118,6 @@ class HandTracker:
         return self.current_frame
     
     def release(self):
-        """Release camera and cleanup resources"""
         self.capture.release()
         self.hands.close()
 
