@@ -188,3 +188,25 @@ All settings are in `config.py` (Singleton). Modify to adjust:
 - Difficulty levels
 - Online leaderboard
 - Multiple game modes
+
+## Photos
+
+
+Hands
+<img width="795" height="823" alt="Screenshot 2026-04-26 162724" src="https://github.com/user-attachments/assets/cd2ac3a9-7b90-4ac7-88c6-cd97e0597fc9" /><img width="648" height="745" alt="Screenshot 2026-04-26 162737" src="https://github.com/user-attachments/assets/1d6c053e-25fc-40be-b532-e2ebcc9f9f41" />
+
+Pressing the cather
+<img width="870" height="707" alt="Screenshot 2026-04-26 162748" src="https://github.com/user-attachments/assets/7ccefa4c-9bb1-46ab-af43-773e5e7e8965" />
+
+Main menu
+<img width="1710" height="869" alt="Screenshot 2026-04-26 162829" src="https://github.com/user-attachments/assets/5ace5d50-d26a-484f-9009-5d900f89f459" />
+
+5 tiles at once
+<img width="970" height="378" alt="Screenshot 2026-04-26 162759" src="https://github.com/user-attachments/assets/a4628259-e8cf-4540-9447-53445cad439f" />
+
+Overall gameplay
+<img width="2407" height="1422" alt="Screenshot 2026-04-26 162700" src="https://github.com/user-attachments/assets/e71a4454-4862-4878-ae4f-9714928bfe83" />
+
+
+
+
