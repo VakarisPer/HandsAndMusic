@@ -1,6 +1,3 @@
-I've created the fixed README as a plain text file. You can copy the content below and save it as `README.txt` (or replace your existing `README.md` if you prefer Markdown).
-
-```text
 # Hand Gesture-Controlled Rhythm Game
 
 ## Table of Contents
