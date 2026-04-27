@@ -1,4 +1,22 @@
-# Hand Gesture-Controlled Rhythm Game
+Here is the revised `README.md` for your Hand Gesture‑Controlled Rhythm Game, updated to accurately reflect the music‑driven, BPM‑synchronized gameplay and gesture mechanics.
+
+
+# 🎵 Hand Gesture‑Controlled Rhythm Game
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Tracking-ff69b4)](https://mediapipe.dev/)
+[![Librosa](https://img.shields.io/badge/Librosa-BPM%20Detection-green)](https://librosa.org/)
+
+A real‑time rhythm game where your **hand gestures** control the action.  
+Choose a song → the game detects its **BPM** → tiles fall in perfect sync with the beat.  
+Use your **index finger** to catch regular tiles, and an **open palm** to collect special 5‑tile bursts.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cd2ac3a9-7b90-4ac7-88c6-cd97e0597fc9" width="45%">
+  <img src="https://github.com/user-attachments/assets/1d6c053e-25fc-40be-b532-e2ebcc9f9f41" width="45%">
+</p>
+
+---
 
 ## Table of Contents
 - [Overview](#overview)
@@ -6,207 +24,263 @@
 - [Installation](#installation)
 - [How to Run](#how-to-run)
 - [How to Play](#how-to-play)
+  - [Music Selection](#music-selection)
+  - [Gesture Controls](#gesture-controls)
+  - [Rhythm Mechanics](#rhythm-mechanics)
 - [Project Structure](#project-structure)
 - [OOP Implementation](#oop-implementation)
 - [Design Patterns](#design-patterns)
 - [Technical Documentation](#technical-documentation)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Future Enhancements](#future-enhancements)
+- [Screenshots](#screenshots)
+
+---
 
 ## Overview
-Hand Gesture-Controlled Rhythm Game is a real-time gesture recognition rhythm game that uses your webcam to detect hands. Catch falling tiles by touching them with the fingertips of an open palm – no extra gestures needed.
 
-**Goal**: Catch as many falling tiles as possible by touching them with your fingertips while holding an **Open Palm**.
+**Hand Gesture‑Controlled Rhythm Game** turns your webcam into a motion controller.  
+Pick a music file – the program analyses its **BPM** using `librosa`. Tiles are generated on beat boundaries, and their falling speed matches the music’s tempo.  
+
+- 🖐️ **Index finger tip** (MediaPipe landmark #8) catches single tiles.  
+- ✋ **Open palm** (all five fingers extended) catches an entire **5‑tile burst** that appears every N beats (configurable).  
+
+Both hands are tracked simultaneously, and the game provides real‑time visual feedback, score persistence, and a high‑score leaderboard.
+
+---
 
 ## Features
-- **One Gesture Only – Open Palm**  
-  Keep your hand open (all fingers extended) to catch tiles. No other gestures are required.
-- **Fingertip Collision System**  
-  Each fingertip acts as an independent catcher. When a fingertip touches a falling tile, the tile is captured instantly.
-- **Catch Up to 5 Tiles at Once**  
-  With all five fingers extended, you can snatch up to 5 tiles simultaneously.
-- **Real-time Hand Tracking**  
-  Powered by Google MediaPipe for accurate detection of hand landmarks.
-- **Visual Feedback**  
-  Tiles flash green when caught, red when missed.
-- **Score Persistence**  
-  High scores are saved to a JSON file automatically.
+
+| Category | Details |
+|----------|---------|
+| 🎵 **Music‑driven gameplay** | Load any `.mp3` or `.wav` – BPM is detected automatically. Tile fall speed and spawn timing are locked to the beat. |
+| 🖱️ **Index finger catching** | Only your **index fingertip** (landmark 8) catches regular falling tiles. Dual‑hand support – use one or both hands. |
+| ✋ **Open palm burst** | Every **N beats** (set in config), a special group of **5 tiles** appears. Extend **all five fingers** of either hand to catch all five at once for a massive +5 points. |
+| 📈 **BPM‑synchronised tiles** | Higher BPM = faster falling tiles, keeping the challenge rhythmically consistent. |
+| 🎨 **Visual feedback** | Tiles flash **green** when caught, **red** when missed. Burst tiles glow with a special effect. |
+| 💾 **Score persistence** | High scores are saved to `scores.json`. |
+| 🎮 **Main menu** | Choose your song, adjust burst frequency (beats per burst), and start the game. |
+
+---
 
 ## Installation
+
 ### Prerequisites
 - Python 3.8 or higher
-- A webcam
-- 200+ MB free disk space
+- A working webcam
+- 300+ MB free disk space (for `librosa` and dependencies)
 
 ### Setup
+
 1. **Clone or download the project**
    ```bash
-   cd Hand-Gesture-Controlled-Rhythm-Game
+   git clone https://github.com/yourusername/Hand-Gesture-Rhythm-Game.git
+   cd Hand-Gesture-Rhythm-Game
    ```
-2. **Create virtual environment** (recommended)
+
+2. **Create a virtual environment** (recommended)
    ```bash
    python -m venv venv
-   venv\Scripts\activate      # Windows
-   source venv/bin/activate   # macOS/Linux
+   # Windows
+   venv\Scripts\activate
+   # macOS/Linux
+   source venv/bin/activate
    ```
+
 3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
+> `requirements.txt` includes: `pygame`, `opencv-python`, `mediapipe`, `numpy`, `librosa`, `scipy`
+
+---
+
 ## How to Run
+
 ```bash
 python main.py
 ```
-The game window opens, displaying your webcam feed with hand tracking and falling tiles.
 
-**To exit**: Press `Q` or close the window.
+- The **main menu** opens. Select a music file and adjust the **“burst every N beats”** setting (e.g., 8 beats = one 5‑tile wave).
+- Press `Start Game` – the webcam feed appears, and tiles begin falling in sync with the music.
+- Press `Q` or close the window to exit.
+
+---
 
 ## How to Play
-### Core Mechanic
-- **Hold an Open Palm** – extend all five fingers (thumb, index, middle, ring, pinky).  
-- **Touch the falling tiles** with your fingertips to catch them.
-- Each fingertip can catch one tile at a time, so you can grab up to 5 tiles simultaneously.
 
-### What You See
-- Coloured tiles fall from the top of the screen.
-- Cyan (hand 0) / Magenta (hand 1) dots mark your fingertip positions.
-- A caught tile flashes green; a missed tile flashes red and disappears.
+### Music Selection
+- Supported formats: `.mp3`, `.wav`, `.ogg`
+- BPM is detected using **librosa** (onset detection + tempo estimation).  
+- The game automatically calculates **tile fall speed** as:  
+  `speed = screen_height / (60 / BPM * beat_duration_factor)`  
 
-### Scoring
-- **+1 point** – tile successfully touched by a fingertip.
-- **-1 point** – tile falls off the screen without being caught (when your hand could have reached it).
-- **No penalty** for empty gestures.
+### Gesture Controls
 
-### Tips
-- Keep your palm facing the camera with fingers clearly separated.
-- Ensure good lighting so MediaPipe can detect all five fingers.
-- Position yourself at a comfortable distance – you don't need to stretch far.
+#### 🖱️ Catching Regular Tiles – Index Finger Only
+- Extend your **index finger** (pointing gesture).  
+- Touch the falling tile with your **index fingertip** (landmark #8).  
+- Both hands work independently – you can catch two tiles at once if each hand’s index finger touches a different tile.  
+- **Scoring:** +1 per tile caught. **Missed tile:** -1 (if it passes the bottom without being caught).
+
+#### ✋ Catching the 5‑Tile Burst – Open Palm
+- Every **N beats** (configurable, default = 8 beats), a swirling group of **5 tiles** appears.  
+- To catch all five at once, extend **all five fingers** of **either hand** (open palm gesture).  
+- The tiles are removed instantly, and you receive **+5 points**.  
+- If you miss the burst (no open palm while it’s on screen), no penalty is applied – the burst simply disappears.
+
+### Rhythm Mechanics
+- Tiles are **only generated on beat positions** – never between beats.  
+- The exact spawn time is aligned with the music’s beat grid using the detected BPM.  
+- As BPM increases, tiles fall faster – maintaining a consistent rhythmic challenge.
+
+---
 
 ## Project Structure
+
 ```
 Hand-Gesture-Controlled-Rhythm-Game/
-├── main.py                    # Entry point
-├── GameLoop.py                # Main game logic and rendering
-├── audio.py                   # Audio analysis and playback (optional)
-├── config.py                  # Centralized configuration (Singleton)
-├── score_manager.py           # Score persistence with file I/O
+├── main.py                       # Entry point – menu + game launcher
+├── GameLoop.py                   # Main game loop, rendering, collision
+├── audio.py                      # BPM detection, music loading, playback
+├── config.py                     # Centralised settings (Singleton)
+├── score_manager.py              # High‑score persistence (JSON)
 ├── hand_tracking/
 │   ├── __init__.py
-│   ├── Tracking.py            # HandTracker class (Singleton)
-│   ├── HandGesture.py         # Gesture recognition (Open Palm detection)
-│   └── HelperFunctions.py     # Utility functions
+│   ├── Tracking.py               # HandTracker class (Singleton)
+│   ├── HandGesture.py            # Open palm detection, index finger recognition
+│   └── HelperFunctions.py        # Landmark conversion, distance calculation
 ├── requirements.txt
-├── scores.json               # High scores storage (auto-generated)
+├── scores.json                   # Auto‑generated high score file
 └── README.md
 ```
 
+---
+
 ## OOP Implementation
-This project demonstrates all 4 pillars of Object-Oriented Programming:
 
-### 1. **Encapsulation**
-- **GameObject class**: Encapsulates object properties (position, size, colour, speed).
-- **Private attributes**: `_instance` in Singleton patterns.
-- **Score Manager**: Encapsulates score loading/saving logic.
+The project demonstrates all four pillars of object‑oriented programming:
 
-### 2. **Abstraction**
-- **GameObject**: Abstract base for tiles and other entities.
-- **HandTracker**: Hides the complexity of MediaPipe and camera handling.
-- **ScoreManager**: Provides a clean interface for score persistence.
+### 1. Encapsulation
+- `GameObject` bundles position, size, colour, speed, and collision methods.  
+- `HandTracker` hides the complexity of MediaPipe pipeline and camera access.  
+- `ScoreManager` manages file I/O and score updates with a clean public interface.
 
-### 3. **Inheritance**
-- All game objects inherit from **GameObject** (e.g. tiles share common physics and rendering).
+### 2. Abstraction
+- `GameObject` is an abstract base class – tiles and burst groups inherit from it.  
+- `HandGesture` provides an `is_open_palm()` method without exposing landmark comparison details.
 
-### 4. **Polymorphism**
-- Different collision detection methods: `point_collision()` for fingertips vs. tile boundaries.
-- Tile colour and speed vary dynamically based on type.
+### 3. Inheritance
+- `Tile` and `BurstTileGroup` inherit from `GameObject`, reusing physics and rendering methods while adding their own behaviour (e.g., burst effects).
+
+### 4. Polymorphism
+- Different collision checks: `point_collision()` for index fingertip vs tile; `aabb_collision()` for open palm detection area.  
+- Overridden `update()` methods for normal tiles (fall linearly) and burst tiles (wiggle effect).
+
+---
 
 ## Design Patterns
-### 1. **Singleton Pattern**
-- **GameConfig**: Only one configuration instance.
-- **HandTracker**: Single camera and MediaPipe pipeline.
-- **Why**: Prevents duplicate resources and centralises control.
 
-### 2. **Factory-like Pattern**
-- `tile_generator()` spawns tiles with random lane positions and properties.
-- **Why**: Flexible creation of diverse falling objects.
+| Pattern | Implementation | Why |
+|---------|----------------|-----|
+| **Singleton** | `GameConfig`, `HandTracker` | Only one configuration and one camera/MediaPipe instance. Prevents conflicts and saves resources. |
+| **Factory** | `tile_generator(beat_index)` | Creates regular tiles or burst groups depending on the beat count. Encapsulates creation logic. |
+| **Observer** | `ScoreManager` notifies UI on high score update | Loose coupling between scoring and display. |
+| **Strategy** | Different fall speed calculation based on BPM | Allows easy swapping of rhythm algorithms. |
 
-### 3. **Composition Pattern**
-- The game loop manages collections: `tiles`, `score_manager`, etc.
-- **Why**: Clear separation of responsibilities.
+---
 
 ## Technical Documentation
+
 ### Hand Detection Pipeline
-1. Capture webcam frame with OpenCV.
-2. Process frame with MediaPipe Hands.
-3. Extract fingertip positions (landmarks 4, 8, 12, 16, 20).
-4. Recognise **Open Palm** gesture: all five fingers extended.
-5. Check fingertip collision with each tile.
-6. Update score and remove caught tiles.
+1. Capture frame with OpenCV → convert to RGB.  
+2. MediaPipe Hands processes the frame → returns 21 landmarks per hand.  
+3. Extract **index fingertip** (landmark 8) and all five fingertip landmarks (4, 8, 12, 16, 20) for gesture detection.  
+4. Classify gesture:  
+   - **Index pointing:** `(landmark8.y < landmark6.y)` and thumb not interfering.  
+   - **Open palm:** all five tips above their respective PIP/MCP joints.  
+5. Collision detection:  
+   - For normal tiles: Euclidean distance between tile centre and **index fingertip** ≤ tile_radius + 15px.  
+   - For burst tiles: if open palm detected, instantly mark all 5 burst tiles as caught.
 
-### Gesture Recognition
-Only one gesture is used – **Open Palm**. It is detected when:
-- Thumb tip (landmark 4) is to the right/above the thumb IP joint.
-- Index, middle, ring, and pinky tips are above their respective PIP joints.
-```python
-thumb_extended = landmarks[4].x > landmarks[3].x  # adjusted for left/right hand
-index_extended = landmarks[8].y < landmarks[6].y
-# … similarly for other fingers
-if thumb_extended and index_extended and middle_extended and ring_extended and pinky_extended:
-    gesture = "Open_Palm"
-```
-
-### Fingertip Collision
-Instead of fixed catchers, each fingertip acts as a catcher with a collision radius of **30 pixels**.  
-When the distance between a tile’s centre and a fingertip is less than `tile_size/2 + radius`, the tile is caught.
+### BPM Detection & Music Sync
+- `librosa.load()` → `librosa.beat.beat_track()` returns tempo (BPM) and beat frames.  
+- Beat timestamps are converted to game time.  
+- A **beat counter** increments each time a beat occurs.  
+- If `beat_counter % burst_interval == 0`, a `BurstTileGroup` is spawned; otherwise, a regular tile is spawned (random lane).  
+- Tile falling speed: `base_speed = screen_height / (60 / BPM) * speed_multiplier`.
 
 ### Score Persistence
-High scores are saved in `scores.json` using the `ScoreManager` class (JSON format).
+- `ScoreManager` loads/saves `scores.json` with a list of `{score, timestamp, song_name}`.  
+- Only the top 10 scores are retained.
+
+---
 
 ## Configuration
-All settings are in `config.py` (Singleton). Modify to adjust:
-- Screen dimensions
-- Tile speed and spawn intervals
-- Collision radius
-- MediaPipe detection confidence
 
-## Dependencies
-| Package      | Purpose                              |
-|--------------|--------------------------------------|
-| pygame       | Game engine and rendering           |
-| opencv-python| Webcam capture and image processing |
-| mediapipe    | Hand landmark detection             |
-| numpy        | Numerical computations              |
-| librosa      | Audio analysis (optional)           |
-| scipy        | Signal processing (optional)        |
+All settings are in `config.py` (Singleton). Modify to adjust:
+
+```python
+# Game settings
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+TILE_SIZE = 50
+FALL_SPEED_MULTIPLIER = 0.8   # relative to BPM
+
+# Burst settings
+BEATS_PER_BURST = 8           # every N beats spawn 5-tile wave
+
+# Gesture detection
+INDEX_TIP_ID = 8
+OPEN_PALM_THRESHOLD = 0.05    # landmark y‑difference
+
+# Collision
+CATCH_RADIUS = 25             # pixels from fingertip
+```
+
+---
 
 ## Troubleshooting
-- **Camera not detected** – check permissions or try another camera index.
-- **Fingertips not recognised** – improve lighting and keep fingers separated.
-- **Low FPS** – reduce screen resolution or detection confidence.
+
+| Problem | Solution |
+|---------|----------|
+| Camera not found | Check `camera_index` in `config.py` (try 0, 1, 2). Ensure no other app uses the webcam. |
+| BPM detection inaccurate | Use a song with a clear, steady beat. Adjust `librosa` parameters in `audio.py` (`hop_length`, `start_bpm`). |
+| Tiles fall too fast/slow | Change `FALL_SPEED_MULTIPLIER` in `config.py`. |
+| Index finger not recognised | Keep finger pointed upward, avoid curling. Improve lighting. |
+| Open palm false triggers | Increase `OPEN_PALM_THRESHOLD` or require both hands to be open (configurable). |
+
+---
 
 ## Future Enhancements
-- Music‑synchronised tile spawning
-- Difficulty levels
-- Online leaderboard
-- Multiple game modes
 
-## Photos
+- 🔁 **Looping & playlists** – continuous play with multiple songs.  
+- 📊 **Accuracy scoring** – “Perfect”, “Good”, “Miss” based on beat‑aligned catching.  
+- 🎮 **Difficulty levels** – adjust burst frequency and fall speed multiplier.  
+- 🌐 **Online leaderboards** – submit high scores to a global server.  
+- 🎨 **Custom tile skins** – load your own graphics.
 
+---
 
-Hands
-<img width="795" height="823" alt="Screenshot 2026-04-26 162724" src="https://github.com/user-attachments/assets/cd2ac3a9-7b90-4ac7-88c6-cd97e0597fc9" /><img width="648" height="745" alt="Screenshot 2026-04-26 162737" src="https://github.com/user-attachments/assets/1d6c053e-25fc-40be-b532-e2ebcc9f9f41" />
+## Screenshots
 
-Pressing the cather
-<img width="870" height="707" alt="Screenshot 2026-04-26 162748" src="https://github.com/user-attachments/assets/7ccefa4c-9bb1-46ab-af43-773e5e7e8965" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7ccefa4c-9bb1-46ab-af43-773e5e7e8965" width="80%"><br>
+  <em>Main menu – choose music and burst frequency</em>
+</p>
 
-Main menu
-<img width="1710" height="869" alt="Screenshot 2026-04-26 162829" src="https://github.com/user-attachments/assets/5ace5d50-d26a-484f-9009-5d900f89f459" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5ace5d50-d26a-484f-9009-5d900f89f459" width="80%"><br>
+  <em>Open palm catching all 5 burst tiles at once</em>
+</p>
 
-5 tiles at once
-<img width="970" height="378" alt="Screenshot 2026-04-26 162759" src="https://github.com/user-attachments/assets/a4628259-e8cf-4540-9447-53445cad439f" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e71a4454-4862-4878-ae4f-9714928bfe83" width="80%"><br>
+  <em>Gameplay – index finger catching a regular tile</em>
+</p>
 
-Overall gameplay
-<img width="2407" height="1422" alt="Screenshot 2026-04-26 162700" src="https://github.com/user-attachments/assets/e71a4454-4862-4878-ae4f-9714928bfe83" />
+---
 
-
-
-
+**Made with 🎵 and 🖐️** – enjoy the rhythm!
