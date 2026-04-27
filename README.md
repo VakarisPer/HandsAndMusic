@@ -12,8 +12,8 @@ Choose a song → the game detects its **BPM** → tiles fall in perfect sync wi
 Use your **index finger** to catch regular tiles, and an **open palm** to collect special 5‑tile bursts.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/cd2ac3a9-7b90-4ac7-88c6-cd97e0597fc9" width="45%">
-  <img src="https://github.com/user-attachments/assets/1d6c053e-25fc-40be-b532-e2ebcc9f9f41" width="45%">
+  <img src="https://github.com/user-attachments/assets/cd2ac3a9-7b90-4ac7-88c6-cd97e0597fc9" width="30%">
+  <img src="https://github.com/user-attachments/assets/1d6c053e-25fc-40be-b532-e2ebcc9f9f41" width="30%">
 </p>
 
 ---
@@ -273,12 +273,14 @@ CATCH_RADIUS = 25             # pixels from fingertip
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/5ace5d50-d26a-484f-9009-5d900f89f459" width="80%"><br>
-  <em>Open palm catching all 5 burst tiles at once</em>
+  <em>Gameplay – index finger catching a regular tile</em>
+
 </p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/e71a4454-4862-4878-ae4f-9714928bfe83" width="80%"><br>
-  <em>Gameplay – index finger catching a regular tile</em>
+  <em>Open palm catching all 5 burst tiles at once</em>
+
 </p>
 
 ---
