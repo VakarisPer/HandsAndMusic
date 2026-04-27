@@ -46,7 +46,7 @@ Pick a music file – the program analyses its **BPM** using `librosa`. Tiles ar
 - 🖐️ **Index finger tip** (MediaPipe landmark #8) catches single tiles.  
 - ✋ **Open palm** (all five fingers extended) catches an entire **5‑tile burst** that appears every N beats (configurable).  
 
-Both hands are tracked simultaneously, and the game provides real‑time visual feedback, score persistence, and a high‑score leaderboard.
+Both hands are tracked simultaneously, and the game provides real‑time visual feedback and score persistence
 
 ---
 
