@@ -267,19 +267,14 @@ CATCH_RADIUS = 25             # pixels from fingertip
 ## Screenshots
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7ccefa4c-9bb1-46ab-af43-773e5e7e8965" width="80%"><br>
-  <em>Main menu – choose music and burst frequency</em>
-</p>
-
-<p align="center">
   <img src="https://github.com/user-attachments/assets/5ace5d50-d26a-484f-9009-5d900f89f459" width="80%"><br>
-  <em>Gameplay – index finger catching a regular tile</em>
+  <em>Main menu</em>
 
 </p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/e71a4454-4862-4878-ae4f-9714928bfe83" width="80%"><br>
-  <em>Open palm catching all 5 burst tiles at once</em>
+  <em>5 burst tiles falling</em>
 
 </p>
 
