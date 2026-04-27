@@ -1,6 +1,3 @@
-Here is the revised `README.md` for your Hand Gesture‑Controlled Rhythm Game, updated to accurately reflect the music‑driven, BPM‑synchronized gameplay and gesture mechanics.
-
-
 # 🎵 Hand Gesture‑Controlled Rhythm Game
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
