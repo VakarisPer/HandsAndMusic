@@ -60,7 +60,7 @@ Both hands are tracked simultaneously, and the game provides real‑time visual 
 | 📈 **BPM‑synchronised tiles** | Higher BPM = faster falling tiles, keeping the challenge rhythmically consistent. |
 | 🎨 **Visual feedback** | Tiles flash **green** when caught, **red** when missed. Burst tiles glow with a special effect. |
 | 💾 **Score persistence** | High scores are saved to `scores.json`. |
-| 🎮 **Main menu** | Choose your song, adjust burst frequency (beats per burst), and start the game. |
+| 🎮 **Main menu (in config file)** | Choose your song, adjust burst frequency (beats per burst), and start the game. |
 
 ---
 
