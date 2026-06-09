@@ -238,14 +238,6 @@ def Start():
     for catcher in catchers:
         catcher.list_ref = catchers
     
-    # key_catcher_pairs = [
-    #             (pygame.K_1, 0),
-    #             (pygame.K_2, 1),
-    #             (pygame.K_3, 2),
-    #             (pygame.K_4, 3),
-    #             (pygame.K_5, 4),
-    #         ]
-    
     gesture_catcher_pairs = [
                 ("Closed_Fist", 0),
                 ("Open_Palm", 1),
