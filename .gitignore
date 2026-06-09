@@ -1,2 +1,29 @@
 __pycache__/
-scores.json
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE/system
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Test and cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local runtime data
+data/

@@ -1,554 +1,437 @@
-"""
-Main game loop for Hand Gesture-Controlled Rhythm Game.
-
-Handles game object management (tiles + catchers), hand gesture collision,
-scoring with combo multiplier, optional music-synced spawning, and rendering.
-"""
-
-import random
-from abc import ABC, abstractmethod
-
 import pygame
-import cv2
-
+import random
+import audio
 from hand_tracking.Tracking import HandTracker
-from config import GameConfig
-from score_manager import ScoreManager
+import cv2
+import numpy as np
 
+tile_id = 0  # global counter
 
-# ---------------------------------------------------------------------------
-# Game objects (OOP hierarchy with abstract base)
-# ---------------------------------------------------------------------------
-
-class GameObject(ABC):
-    """Abstract base class for all on-screen game entities."""
-
+class GameObject:
     def __init__(self, name, position, size, color, speed, list_ref=None):
         self.name = name
         self.position = position
         self.size = size
         self.color = color
-        self.original_color = color
+        self.original_color = color  # Store original color
         self.speed = speed
-        self.list_ref = list_ref
-        self.click_effect = 0
-        self.feedback_color = None
-        self.feedback_timer = 0
-
-    @abstractmethod
-    def update(self, dt):
-        """Per-frame state update. Subclasses define their own behavior."""
-        ...
+        self.list_ref = list_ref  # Reference to the shared list
+        self.click_effect = 0  # Timer for click expansion effect
+        self.pointer_collision = False  # Finger pointer collision this frame
+        self.feedback_color = None  # Color feedback (red/green) for action feedback
+        self.feedback_timer = 0  # Timer for feedback color display
 
     def delete(self):
-        if self.list_ref is not None and self in self.list_ref:
-            self.list_ref.remove(self)
-
+        self.list_ref.remove(self)  # Removes itself from the list
+    
     def get_display_size(self):
+        """Return current display size, accounting for click effect"""
         return self.size + (self.click_effect * 5)
-
+    
     def point_collision(self, point_x, point_y, radius=30):
-        """Circle-vs-point collision against this object's center."""
+        """Check if a point (finger) collides with this object"""
+        # Circle collision
         center_x = self.position.x + self.size / 2
         center_y = self.position.y + self.size / 2
+        
         dx = point_x - center_x
         dy = point_y - center_y
-        distance = (dx * dx + dy * dy) ** 0.5
+        distance = (dx**2 + dy**2)**0.5
+        
         return distance < (self.size / 2 + radius)
-
-    def collision(self, other):
-        """AABB rectangle overlap test."""
-        return not (
-            self.position.x + self.size < other.position.x
-            or self.position.x > other.position.x + other.size
-            or self.position.y + self.size < other.position.y
-            or self.position.y > other.position.y + other.size
-        )
-
-
-class Tile(GameObject):
-    """Falling tile.
-
-    `is_kick` and `is_burst` are visual/gameplay markers:
-      * is_kick   — orange variant on kick beats (caught like a normal tile)
-      * is_burst  — part of a 5-tile row, ONLY catchable with Open_Palm
-    """
-
-    def __init__(self, tile_id, position, color, speed,
-                 list_ref=None, is_kick=False, is_burst=False):
-        super().__init__(
-            f"tile_{tile_id}", position, GameConfig.TILE_SIZE,
-            color, speed, list_ref,
-        )
-        self.is_kick = is_kick
-        self.is_burst = is_burst
-
-    def update(self, dt):
-        self.position.y += self.speed * dt
-
-
-class Catcher(GameObject):
-    """Stationary lane catcher. Pulses on activation.
-
-    Holds per-hand 'armed' state so a click only registers when a finger
-    enters the catcher; the finger must leave before the next click.
-    """
-
-    def __init__(self, lane_index, position, list_ref=None):
-        super().__init__(
-            f"catcher_{lane_index}", position, GameConfig.CATCHER_SIZE,
-            GameConfig.COLOR_WHITE, 0, list_ref,
-        )
-        self.lane_index = lane_index
-        self.pointer_armed = [True, True]  # one slot per tracked hand
-
-    def update(self, dt):
-        if self.feedback_timer > 0:
-            self.feedback_timer -= dt
-        if self.click_effect > 0:
-            self.click_effect -= 1
-
-
-# ---------------------------------------------------------------------------
-# Spawners
-# ---------------------------------------------------------------------------
-
-class TileSpawner:
-    """Creates tiles in lanes using selectable patterns."""
-
-    PATTERNS = {
-        "sequential":   lambda count: count % 5,
-        "alternating":  lambda count: [0, 4, 1, 3, 2][count % 5],
-        "center_first": lambda count: [2, 1, 3, 0, 4][count % 5],
-        "zigzag":       lambda count: [0, 2, 4, 3, 1][count % 5],
-        "random":       lambda count: random.randint(0, 4),
-    }
-
-    TILE_COLORS = [
-        GameConfig.COLOR_RED, GameConfig.COLOR_GREEN, GameConfig.COLOR_BLUE,
-        GameConfig.COLOR_YELLOW, GameConfig.COLOR_MAGENTA,
-    ]
-
-    def __init__(self, screen_width, lane_positions):
-        self.screen_width = screen_width
-        self.lane_positions = lane_positions
-        self.spawn_count = 0
-
-    def spawn_tile(self, tiles, pattern="sequential", is_kick=False):
-        """Spawn one normal tile in a lane chosen by `pattern`."""
-        pattern_fn = self.PATTERNS.get(pattern, self.PATTERNS["sequential"])
-        lane_index = pattern_fn(self.spawn_count)
-        self.spawn_count += 1
-        self._make_tile(tiles, lane_index, is_kick=is_kick, is_burst=False)
-
-    def spawn_row(self, tiles):
-        """Spawn one BURST tile in every lane (only Open_Palm catches them)."""
-        for lane_index in range(len(self.lane_positions)):
-            self.spawn_count += 1
-            self._make_tile(tiles, lane_index, is_kick=False, is_burst=True)
-
-    def _make_tile(self, tiles, lane_index, is_kick, is_burst):
-        position = pygame.math.Vector2(self.lane_positions[lane_index],
-                                       GameConfig.TILE_SPAWN_Y)
-        if is_burst:
-            color = GameConfig.COLOR_BURST
-            speed = GameConfig.TILE_SPEED
-        elif is_kick:
-            color = GameConfig.COLOR_ORANGE
-            speed = GameConfig.KICK_TILE_SPEED
-        else:
-            color = random.choice(self.TILE_COLORS)
-            speed = GameConfig.TILE_SPEED
-        tiles.append(Tile(self.spawn_count, position, color, speed,
-                          tiles, is_kick=is_kick, is_burst=is_burst))
-
+    
+    def collision(self, obj):
+        """Check rectangular collision between this object and another object"""
+        # Get bounding boxes
+        self_left = self.position.x
+        self_right = self.position.x + self.size
+        self_top = self.position.y
+        self_bottom = self.position.y + self.size
+        
+        obj_left = obj.position.x
+        obj_right = obj.position.x + obj.size
+        obj_top = obj.position.y
+        obj_bottom = obj.position.y + obj.size
+        
+        # AABB collision detection
+        return not (self_right < obj_left or self_left > obj_right or 
+                   self_bottom < obj_top or self_top > obj_bottom)
 
 class MusicSpawner:
-    """Spawns tiles so they hit the catcher row on the beat.
-
-    BPM is detected once by librosa, then beats are generated as a fixed
-    interval grid (60 / bpm). Every Nth beat (BEAT_SKIP) gets a tile,
-    spawned `travel_time` seconds early so it arrives on the beat.
-    """
-
-    def __init__(self, tile_spawner, bpm, travel_time,
-                 beat_skip=1, burst_interval=0):
-        self.tile_spawner = tile_spawner
-        self.beat_interval = 60.0 / max(bpm, 1)
-        self.travel_time = travel_time
-        self.beat_skip = max(1, int(beat_skip))
-        self.burst_interval = max(0, int(burst_interval))
-        # Skip every beat whose pre-spawn time would be before the song
-        # started — otherwise the game floods with random tiles on launch.
-        self.next_beat_index = 0
-        while (self.next_beat_index * self.beat_interval
-               - self.travel_time < 0):
-            self.next_beat_index += 1
-
-    def update(self, current_song_time, tiles, pattern):
-        """Spawn any tiles whose lead-time window has now arrived."""
+    """Spawns tiles based on music beats"""
+    def __init__(self, beat_times, kick_times, screen_width):
+        self.beat_times = beat_times
+        self.kick_times = set(kick_times)  # Convert to set for O(1) lookup
+        self.screen_width = screen_width
+        self.beat_index = 0
+        self.spawn_window = 0.1  # ±100ms window to trigger spawn
+    
+    def should_spawn_tile(self, current_time):
+        """
+        Check if it's time to spawn a tile based on beats
+        Returns: (should_spawn, is_kick)
+        """
+        if self.beat_index >= len(self.beat_times):
+            return False, False
+        
+        beat_time = self.beat_times[self.beat_index]
+        
+        # If current time is within spawn window of next beat
+        if current_time >= beat_time - self.spawn_window:
+            self.beat_index += 1
+            # Check if this beat corresponds to a kick
+            is_kick = beat_time in self.kick_times
+            return True, is_kick
+        
+        return False, False
+    
+    def spawn_tiles(self, tiles, current_time):
+        """Spawn tiles for any beats that should happen now"""
+        spawned = False
         while True:
-            beat_time = self.next_beat_index * self.beat_interval
-            spawn_time = beat_time - self.travel_time
-            if current_song_time < spawn_time:
-                return
-            if self.next_beat_index % self.beat_skip == 0:
-                if (self.burst_interval
-                        and self.next_beat_index > 0
-                        and self.next_beat_index % self.burst_interval == 0):
-                    self.tile_spawner.spawn_row(tiles)
+            should_spawn, is_kick = self.should_spawn_tile(current_time)
+            if not should_spawn:
+                break
+            
+            spawned = True
+            # Spawn more tiles on kicks (extra challenge)
+            num_tiles = 2 if is_kick else 1
+            
+            for _ in range(num_tiles):
+                tile_name = f"tile_{self.beat_index}_{_}"
+                tile_position = pygame.math.Vector2(self.screen_width / 2, -50)
+                
+                # Kick tiles are special (different color/speed)
+                if is_kick:
+                    tile_color = (255, 100, 0)  # Orange for kick
+                    tile_speed = random.randint(150, 170)  # Faster
                 else:
-                    self.tile_spawner.spawn_tile(tiles, pattern)
-            self.next_beat_index += 1
+                    tile_color = random.choice([(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255)])
+                    tile_speed = random.randint(100, 110)
 
+                new_tile = GameObject(tile_name, tile_position, 30, tile_color, tile_speed, None)
+                new_tile.list_ref = tiles
+                tiles.append(new_tile)
+            if spawned:
+                print(f"Beat spawn at t={current_time:.2f}s (kick={is_kick})")
+        
+        return spawned
 
-# ---------------------------------------------------------------------------
-# Rendering helpers
-# ---------------------------------------------------------------------------
+def get_index_from_name(name, tiles):
+    for i, tile in enumerate(tiles):
+        if tile.name == name:
+            return i
+    return -1
 
-def display_user_camera(screen, tracker):
+def tile_generator(tiles, screen, spawn_count=0, spawn_pattern="sequential", lane_positions=None):
+    """
+    Spawn tiles in lanes with configurable patterns.
+    
+    Spawn patterns:
+    - "sequential": 0→1→2→3→4→0 (left to right)
+    - "random": Random lane each spawn
+    - "alternating": 0→4→1→3→2 (outside to inside)
+    - "center_first": 2→1→3→0→4 (center outward)
+    - "zigzag": 0→2→4→3→1 (zigzag pattern)
+    """
+    if lane_positions is None:
+        lane_positions = [screen.get_width() / 2 + (i - 2) * 150 for i in range(5)]
+    
+    screen_width = screen.get_width()
+    
+    # Determine which lane to spawn in based on pattern
+    if spawn_pattern == "sequential":
+        lane_index = spawn_count % 5
+    elif spawn_pattern == "random":
+        lane_index = random.randint(0, 4)
+    elif spawn_pattern == "alternating":
+        pattern_seq = [0, 4, 1, 3, 2]
+        lane_index = pattern_seq[spawn_count % 5]
+    elif spawn_pattern == "center_first":
+        pattern_seq = [2, 1, 3, 0, 4]
+        lane_index = pattern_seq[spawn_count % 5]
+    elif spawn_pattern == "zigzag":
+        pattern_seq = [0, 2, 4, 3, 1]
+        lane_index = pattern_seq[spawn_count % 5]
+    else:
+        lane_index = spawn_count % 5
+    
+    # Spawn tile in the selected lane
+    tile_position = pygame.math.Vector2(lane_positions[lane_index], -50)
+    tile_color = random.choice([(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)])
+    tile_speed = random.randint(100, 110)
+    
+    # Create and add tile
+    tile_name = f"tile_{spawn_count}"
+    new_tile = GameObject(tile_name, tile_position, 30, tile_color, tile_speed, None)
+    new_tile.list_ref = tiles
+    tiles.append(new_tile)
+
+def display_user_camera(screen):
+
+    # Initialize tracker if not already done
+    if not hasattr(display_user_camera, 'tracker'):
+        display_user_camera.tracker = HandTracker()
+    
+    tracker = display_user_camera.tracker
+    
+    # Process frame: capture, detect, analyze, draw
+    if not tracker.process_frame():
+        return
+    
+    # Get processed frame from tracker
     frame = tracker.get_frame()
     if frame is None:
         return
+    
+    # Resize to match screen dimensions
     frame_resized = cv2.resize(frame, (screen.get_width(), screen.get_height()))
+    
+    # Convert OpenCV (BGR) frame to RGB for pygame
     frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
-    surface = pygame.image.fromstring(
-        frame_rgb.tobytes(), frame_rgb.shape[1::-1], 'RGB',
+    
+    # Convert to pygame surface
+    frame_surface = pygame.image.fromstring(
+        frame_rgb.tobytes(),
+        frame_rgb.shape[1::-1],
+        'RGB'
     )
-    screen.blit(surface, (0, 0))
+    
+    # Blit camera feed to screen
+    screen.blit(frame_surface, (0, 0))
 
-
-def _draw_finger_marker(screen, pos, color):
-    if pos is None:
-        return
-    x, y = int(pos[0]), int(pos[1])
-    pygame.draw.circle(screen, color, (x, y), 15, 2)
-    pygame.draw.line(screen, color, (x - 20, y), (x + 20, y), 2)
-    pygame.draw.line(screen, color, (x, y - 20), (x, y + 20), 2)
-
-
-def draw_finger_indicators(screen, hand0_pos, hand1_pos):
-    _draw_finger_marker(screen, hand0_pos, GameConfig.COLOR_CYAN)
-    _draw_finger_marker(screen, hand1_pos, GameConfig.COLOR_MAGENTA)
-
-
-def draw_game_objects(screen, tiles, catchers, dt):
-    """Update + render all game objects (movement now lives on the objects)."""
-    for tile in tiles:
-        tile.update(dt)
-        pygame.draw.rect(screen, tile.color,
-                         (tile.position.x, tile.position.y,
-                          tile.size, tile.size))
-
-    for catcher in catchers:
-        catcher.update(dt)
-        display_size = catcher.get_display_size()
-        offset = (display_size - catcher.size) / 2
-        color = (catcher.feedback_color
-                 if catcher.feedback_timer > 0 else catcher.original_color)
-        pygame.draw.rect(screen, color,
-                         (catcher.position.x - offset,
-                          catcher.position.y - offset,
-                          display_size, display_size))
-
-
-def draw_ui(screen, score, combo, font):
-    score_text = font.render(f"Score: {score}", True, GameConfig.COLOR_WHITE)
-    screen.blit(score_text, (20, 20))
-    if combo > 1:
-        combo_text = font.render(f"Combo x{combo}", True,
-                                 GameConfig.COLOR_ORANGE)
-        screen.blit(combo_text, (20, 70))
-
-
-# ---------------------------------------------------------------------------
-# Per-frame collision logic (extracted to remove hand-0 / hand-1 duplication)
-# ---------------------------------------------------------------------------
-
-def _screen_pos_from_finger(finger_pos, screen):
-    if finger_pos is None:
-        return None
-    return (finger_pos[0] * screen.get_width(),
-            finger_pos[1] * screen.get_height())
-
-
-def _handle_pointer_collision(finger_pos, hand_index,
-                              catchers, tiles, frame_state, config):
-    """One hand's pointer click. Click only fires on enter; finger must
-    leave the catcher before another click is registered (no spam-hold).
-    """
-    if finger_pos is None:
-        # Re-arm every catcher for this hand when the hand isn't tracked
-        for catcher in catchers:
-            catcher.pointer_armed[hand_index] = True
-        return
-
-    for i, catcher in enumerate(catchers):
-        inside = catcher.point_collision(
-            finger_pos[0], finger_pos[1], config.CATCHER_POINTER_RADIUS,
-        )
-        if not inside:
-            catcher.pointer_armed[hand_index] = True
-            continue
-        if not catcher.pointer_armed[hand_index]:
-            continue  # Still inside from a previous click — ignore
-
-        # Fresh click
-        catcher.pointer_armed[hand_index] = False
-        catcher.click_effect = config.CATCHER_EXPANSION_EFFECT
-        frame_state["used"].add(i)
-
-        for tile in tiles[:]:
-            if tile.is_burst:
-                continue  # Burst tiles can only be caught with Open_Palm
-            if catcher.point_collision(
-                tile.position.x + tile.size / 2,
-                tile.position.y + tile.size / 2,
-                config.CATCHER_COLLISION_RADIUS,
-            ):
-                frame_state["had_tiles"].add(i)
-                if tile not in frame_state["to_remove"]:
-                    frame_state["to_remove"].append(tile)
-                    frame_state["caught"].add(i)
-
-
-def _handle_open_palm(catchers, tiles, frame_state, screen_height, config):
-    """Open_Palm catches BURST tiles only — never single tiles."""
-    for i, catcher in enumerate(catchers):
-        catcher.click_effect = config.CATCHER_EXPANSION_EFFECT
-        frame_state["used"].add(i)
-        for tile in tiles[:]:
-            if not tile.is_burst:
-                continue
-            in_zone = tile.position.y > (screen_height
-                                         - config.TILE_CATCH_ZONE_HEIGHT)
-            in_lane = abs(tile.position.x - catcher.position.x) \
-                      < config.CATCHER_LANE_WIDTH
-            if in_zone and in_lane:
-                frame_state["had_tiles"].add(i)
-                if tile not in frame_state["to_remove"]:
-                    frame_state["to_remove"].append(tile)
-                    frame_state["caught"].add(i)
-
-
-def _drop_missed_tiles(tiles, screen_height, config):
-    """Remove off-screen tiles. Returns (score_penalty, missed_count)."""
-    penalty = 0
-    count = 0
-    for tile in tiles[:]:
-        if tile.position.y > screen_height:
-            tile.delete()
-            penalty += config.POINTS_PER_MISS
-            count += 1
-    return penalty, count
-
-
-def _resolve_score(catchers, frame_state, score, combo, config):
-    """Apply per-frame score + combo. Returns (new_score, new_combo)."""
-    for i, catcher in enumerate(catchers):
-        if i not in frame_state["used"]:
-            continue
-        if i in frame_state["caught"]:
-            score += config.POINTS_PER_CATCH
-            combo += 1
-            catcher.feedback_color = config.COLOR_GREEN
-            catcher.feedback_timer = config.FEEDBACK_DURATION
-        elif i in frame_state["had_tiles"]:
-            score -= config.POINTS_PER_BAD_CLICK
-            combo = 0
-            catcher.feedback_color = config.COLOR_RED
-            catcher.feedback_timer = config.FEEDBACK_DURATION
-    return score, combo
-
-
-# ---------------------------------------------------------------------------
-# Setup helpers
-# ---------------------------------------------------------------------------
-
-def _build_catchers(screen, lane_positions):
-    catchers = [
-        Catcher(i, pygame.math.Vector2(
-            lane_positions[i] - 5, screen.get_height() - 100,
-        ))
-        for i in range(5)
-    ]
-    for catcher in catchers:
-        catcher.list_ref = catchers
-    return catchers
-
-
-def _build_music_spawner(tile_spawner, travel_time, bpm, config):
-    """Start playback and return a MusicSpawner. BPM is detected up-front
-    (before the menu) so the game launches without delay."""
-    if bpm is None:
-        return None, None
-    try:
-        from audio import play_audio
-        start_time = play_audio(config.AUDIO_FILE)
-        spawner = MusicSpawner(tile_spawner, bpm, travel_time,
-                               beat_skip=config.BEAT_SKIP,
-                               burst_interval=config.BURST_INTERVAL)
-        return spawner, start_time
-    except Exception as e:
-        print(f"[Game] Music spawner disabled: {e}")
-        return None, None
-
-
-# ---------------------------------------------------------------------------
-# Main loop
-# ---------------------------------------------------------------------------
-
-def run_game(screen, tracker, config, bpm=None):
-    """One game session. Caller owns the screen + tracker lifecycle.
-
-    `bpm` is detected up-front by start() so the game starts instantly.
-    """
+def Start():
+    #init
+    
+    score = 0
+    pygame.init()  # Initialize all pygame modules including font
+    screen = pygame.display.set_mode((1280, 720))  # Fixed resolution for better performance
+    
+    pygame.display.set_caption("Rhythm Game")
     clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 48)
-    score_manager = ScoreManager(config.SCORES_FILE)
+    running = True
+    dt = 0
 
-    center_x = screen.get_width() / 2
-    lane_positions = [center_x + (i - 2) * config.CATCHER_LANE_SPACING
-                      for i in range(5)]
-    catchers = _build_catchers(screen, lane_positions)
+    # Load and analyze music
+    #print("[Game] Initializing audio...")
+    #music_data = audio.analyze_audio(audio.AUDIO_FILE)
+    #start_time = audio.play_audio(audio.AUDIO_FILE)
+    #spawner = MusicSpawner(music_data['beat_times'], music_data['kick_times'], screen.get_width())
+    #print(f"[Game] Ready! Game will spawn tiles based on {len(music_data['beat_times'])} beats")
+
+    # objects 
     tiles = []
 
-    tile_spawner = TileSpawner(screen.get_width(), lane_positions)
+    # 5 catchers with equal spacing across screen
+    lane_spacing = 100  # pixels between each catcher
+    center_x = screen.get_width() / 2
+    lane_positions = [center_x + (i - 2) * lane_spacing for i in range(5)]
 
-    # How long a tile takes to travel from spawn to the catcher row.
-    # MusicSpawner pre-spawns by exactly this much so the tile lands on-beat.
-    catcher_y = screen.get_height() - 100
-    travel_distance = catcher_y - config.TILE_SPAWN_Y
-    travel_time = travel_distance / config.TILE_SPEED
+    catchers = [
+        GameObject(f"catcher_{i}", pygame.math.Vector2(lane_positions[i]-5, screen.get_height() - 100), 
+                    40,
+                    (255, 255, 255),
+                    0,)
+        for i in range(5)
+    ]
 
-    music_spawner, music_start = (None, None)
-    if config.USE_MUSIC_SPAWNER:
-        music_spawner, music_start = _build_music_spawner(
-            tile_spawner, travel_time, bpm, config)
+    for catcher in catchers:
+        catcher.list_ref = catchers
+    
+    # key_catcher_pairs = [
+    #             (pygame.K_1, 0),
+    #             (pygame.K_2, 1),
+    #             (pygame.K_3, 2),
+    #             (pygame.K_4, 3),
+    #             (pygame.K_5, 4),
+    #         ]
+    
+    gesture_catcher_pairs = [
+                ("Closed_Fist", 0),
+                ("Open_Palm", 1),
+                ("Pointing_Up", 2),
+                ("Thumb_Up", 3),
+                ("Victory", 4),
+            ]
+    
+    spawn_count = 0  # Track tile spawns for pattern rotation
+    spawn_pattern = "alternating"  # CHOOSE PATTERN HERE: "sequential", "random", "alternating", "center_first", "zigzag"
+    
+    spawn_timer = 0  # Timer for tile spawning
+    spawn_interval = 0.8  # Spawn a tile every 0.8 seconds (adjust this to change difficulty)
 
-    spawn_timer = 0
-    score = 0
-    combo = 0
-    dt = 0
-    running = True
-    palm_armed = [True, True]  # Open_Palm also debounced per hand
+    font = pygame.font.Font(None, 36)
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill(config.COLOR_BLACK)
-        display_user_camera(screen, tracker)
+        screen.fill("black")
+        display_user_camera(screen)
 
-        if not tracker.process_frame():
-            continue
+        ## PRIMARY: POINTER COLLISION (Finger-based catching)
+        keys = pygame.key.get_pressed()
+        tiles_to_remove = []
+        catcher_used_this_frame = set()  # Track which catchers were used
+        catcher_caught_tiles_this_frame = set()  # Track which catchers caught tiles
+        
+        # Get gesture and finger position for both hands
+        frame_dims = display_user_camera.tracker.get_frame_dimensions()
+        
+        # Hand 0
+        get_gesture_name = display_user_camera.tracker.get_gesture_name(0)
+        finger_pos = display_user_camera.tracker.get_finger_position(0, finger_index=8)  # Index finger
+        
+        finger_screen_pos = None
+        if finger_pos and frame_dims:
+            # Convert normalized finger position to screen coordinates
+            finger_screen_x = finger_pos[0] * screen.get_width()
+            finger_screen_y = finger_pos[1] * screen.get_height()
+            finger_screen_pos = (finger_screen_x, finger_screen_y)
+        
+        # Hand 1 (second hand)
+        finger_pos_hand1 = display_user_camera.tracker.get_finger_position(1, finger_index=8)  # Index finger
+        finger_screen_pos_hand1 = None
+        if finger_pos_hand1 and frame_dims:
+            # Convert normalized finger position to screen coordinates
+            finger_screen_x_h1 = finger_pos_hand1[0] * screen.get_width()
+            finger_screen_y_h1 = finger_pos_hand1[1] * screen.get_height()
+            finger_screen_pos_hand1 = (finger_screen_x_h1, finger_screen_y_h1)
+        
+        #Handle Open_Palm - activate all catchers simultaneously
+        if get_gesture_name == "Open_Palm":
+            for catcher in catchers:
+                catcher.click_effect = 5  # Expand all catchers
+                # delete the upcoming tiles if Open_Palm active
+                for tile in tiles[:]:
+                    if tile.position.y > screen.get_height() - 100:  # Only affect tiles close to catchers
+                        if tile not in tiles_to_remove:
+                            tiles_to_remove.append(tile)
+                            score += 1
+        
+        # Pointer collision detection for Hand 0
+        if finger_screen_pos:
+            for i, catcher in enumerate(catchers):
+                if catcher.point_collision(finger_screen_pos[0], finger_screen_pos[1], radius=40):
+                    catcher.click_effect = 5  # Visual feedback
+                    catcher_used_this_frame.add(i)  # Mark catcher as used
+                    
+                    for tile in tiles[:]:
+                        if catcher.point_collision(tile.position.x + tile.size/2, tile.position.y + tile.size/2, radius=50):
+                            if tile not in tiles_to_remove:
+                                tiles_to_remove.append(tile)
+                                catcher_caught_tiles_this_frame.add(i)  # Mark catcher caught tile
+                                score += 1
+        
+        # Pointer collision detection for Hand 1 (second hand)
+        if finger_screen_pos_hand1:
+            for i, catcher in enumerate(catchers):
+                if catcher.point_collision(finger_screen_pos_hand1[0], finger_screen_pos_hand1[1], radius=40):
+                    catcher.click_effect = 5  # Visual feedback
+                    catcher_used_this_frame.add(i)  # Mark catcher as used
+                    
+                    for tile in tiles[:]:
+                        if catcher.point_collision(tile.position.x + tile.size/2, tile.position.y + tile.size/2, radius=50):
+                            if tile not in tiles_to_remove:
+                                tiles_to_remove.append(tile)
+                                catcher_caught_tiles_this_frame.add(i)  # Mark catcher caught tile
+                                score += 1
+        
+        # Gesture-based catching (SECONDARY - only if pointer didn't catch)
+        # if not tiles_to_remove:
+        #     for gesture_name, catcher_index in gesture_catcher_pairs:
+        #         if gesture_name == get_gesture_name and gesture_name != "Open_Palm":
+        #             catcher = catchers[catcher_index]
+        #             catcher.click_effect = 5
+                    
+        #             for tile in tiles[:]:
+        #                 if catcher.collision(tile) and tile not in tiles_to_remove:
+        #                     tiles_to_remove.append(tile)
+        #                     score += 1
 
-        gesture_0 = tracker.get_gesture_name(0)
-        gesture_1 = tracker.get_gesture_name(1)
-        hand0_pos = _screen_pos_from_finger(
-            tracker.get_finger_position(0, finger_index=8), screen)
-        hand1_pos = _screen_pos_from_finger(
-            tracker.get_finger_position(1, finger_index=8), screen)
+        # Remove caught tiles
+        for tile in tiles_to_remove:
+            if tile in tiles:
+                tile.delete()
+        
+        # Provide feedback for catcher actions
+        for i, catcher in enumerate(catchers):
+            if i in catcher_used_this_frame:
+                if i in catcher_caught_tiles_this_frame:
+                    # Caught tiles - show green feedback
+                    catcher.feedback_color = (0, 255, 0)  # Green
+                    catcher.feedback_timer = 0.3  # Show for 0.3 seconds
+                else:
+                    # Used but didn't catch - show red feedback and lose points
+                    catcher.feedback_color = (255, 0, 0)  # Red
+                    catcher.feedback_timer = 0.3  # Show for 0.3 seconds
+                    score -= 1  # Lose a point for wrong action
+        ##
 
-        frame_state = {
-            "used": set(),
-            "caught": set(),
-            "had_tiles": set(),
-            "to_remove": [],
-        }
+        for tile in tiles:
+            pygame.draw.rect(screen, tile.color, (tile.position.x, tile.position.y, tile.size, tile.size))
+            tile.position.y += tile.speed * dt
 
-        # Debounce Open_Palm per hand: must release before next trigger.
-        palm_fires = False
-        for h, gesture in enumerate((gesture_0, gesture_1)):
-            if gesture == "Open_Palm":
-                if palm_armed[h]:
-                    palm_fires = True
-                    palm_armed[h] = False
+        for catcher in catchers:
+            display_size = catcher.get_display_size()
+            # Center the expansion around the catcher
+            offset = (display_size - catcher.size) / 2
+            
+            # Determine color: feedback color if active, otherwise original color
+            if catcher.feedback_timer > 0:
+                display_color = catcher.feedback_color
+                catcher.feedback_timer -= dt
+                if catcher.feedback_timer < 0:
+                    catcher.feedback_timer = 0
             else:
-                palm_armed[h] = True
-        if palm_fires:
-            _handle_open_palm(catchers, tiles, frame_state,
-                              screen.get_height(), config)
+                display_color = catcher.original_color
+            
+            pygame.draw.rect(screen, display_color, (catcher.position.x - offset, catcher.position.y - offset, display_size, display_size))
+            # Decrement click effect
+            if catcher.click_effect > 0:
+                catcher.click_effect -= 1
+        
+        # Draw finger position indicator for both hands (circle crosshair)
+        # Hand 0 pointer (cyan)
+        if finger_screen_pos:
+            # Draw circle at finger position
+            pygame.draw.circle(screen, (0, 255, 255), (int(finger_screen_pos[0]), int(finger_screen_pos[1])), 15, 2)
+            # Draw crosshair
+            pygame.draw.line(screen, (0, 255, 255), 
+                           (int(finger_screen_pos[0]) - 20, int(finger_screen_pos[1])), 
+                           (int(finger_screen_pos[0]) + 20, int(finger_screen_pos[1])), 2)
+            pygame.draw.line(screen, (0, 255, 255), 
+                           (int(finger_screen_pos[0]), int(finger_screen_pos[1]) - 20), 
+                           (int(finger_screen_pos[0]), int(finger_screen_pos[1]) + 20), 2)
+        
+        # Hand 1 pointer (magenta)
+        if finger_screen_pos_hand1:
+            # Draw circle at finger position
+            pygame.draw.circle(screen, (255, 0, 255), (int(finger_screen_pos_hand1[0]), int(finger_screen_pos_hand1[1])), 15, 2)
+            # Draw crosshair
+            pygame.draw.line(screen, (255, 0, 255), 
+                           (int(finger_screen_pos_hand1[0]) - 20, int(finger_screen_pos_hand1[1])), 
+                           (int(finger_screen_pos_hand1[0]) + 20, int(finger_screen_pos_hand1[1])), 2)
+            pygame.draw.line(screen, (255, 0, 255), 
+                           (int(finger_screen_pos_hand1[0]), int(finger_screen_pos_hand1[1]) - 20), 
+                           (int(finger_screen_pos_hand1[0]), int(finger_screen_pos_hand1[1]) + 20), 2)
 
-        _handle_pointer_collision(hand0_pos, 0, catchers, tiles,
-                                  frame_state, config)
-        _handle_pointer_collision(hand1_pos, 1, catchers, tiles,
-                                  frame_state, config)
-
-        for tile in frame_state["to_remove"]:
-            tile.delete()
-
-        score, combo = _resolve_score(catchers, frame_state,
-                                      score, combo, config)
-        penalty, missed_count = _drop_missed_tiles(
-            tiles, screen.get_height(), config)
-        score -= penalty
-        if missed_count > 0:
-            combo = 0
-
-        draw_game_objects(screen, tiles, catchers, dt)
-        draw_finger_indicators(screen, hand0_pos, hand1_pos)
-        draw_ui(screen, score, combo, font)
-
+        # Draw score on screen
+        font = pygame.font.Font(None, 48)  # Default font, size 48
+        score_text = font.render(f"Score: {score}", True, (255, 255, 255))  # White text
+        screen.blit(score_text, (10, 10))  # Top-left corner
+        
         pygame.display.flip()
-        dt = clock.tick(config.SCREEN_FPS) / 1000
+        dt = clock.tick(120) / 1000
 
-        # Spawn next tile(s)
-        if music_spawner is not None:
-            from audio import get_current_time
-            music_spawner.update(get_current_time(music_start),
-                                 tiles, config.SPAWN_PATTERN)
-        else:
-            spawn_timer += dt
-            if spawn_timer >= config.SPAWN_INTERVAL:
-                tile_spawner.spawn_tile(tiles, config.SPAWN_PATTERN)
-                spawn_timer = 0
+        # Update spawn timer (non-blocking)
+        spawn_timer += dt
+        if spawn_timer >= spawn_interval:
+            tile_generator(tiles, screen, spawn_count, spawn_pattern, lane_positions)
+            spawn_count += 1
+            spawn_timer = 0  # Reset timer
 
-        print(f"Score: {score} | Combo: {combo} | "
-              f"FPS: {clock.get_fps():.0f}")
+        print(f"Score: {score}, FPS: {clock.get_fps():.0f}")
 
-    score_manager.add_score(score)
-    if music_spawner is not None:
-        try:
-            pygame.mixer.music.stop()
-        except pygame.error:
-            pass
-    return score
-
-
-def start():
-    """Top-level entry: analyze music → open window → menu → game loop."""
-    from menu import run_menu
-
-    config = GameConfig()
-
-    # Analyze music BEFORE opening the window so the menu shows up
-    # responsive (librosa can take a few seconds on first load).
-    bpm = None
-    if config.USE_MUSIC_SPAWNER:
-        try:
-            from audio import detect_bpm
-            bpm = detect_bpm(config.AUDIO_FILE)
-        except Exception as e:
-            print(f"[Game] BPM detection failed, music disabled: {e}")
-
-    pygame.init()
-    screen = pygame.display.set_mode((config.SCREEN_WIDTH,
-                                      config.SCREEN_HEIGHT))
-    pygame.display.set_caption("Hand Gesture-Controlled Rhythm Game")
-
-    tracker = HandTracker(
-        detection_confidence=config.HAND_DETECTION_CONFIDENCE,
-        tracking_confidence=config.HAND_TRACKING_CONFIDENCE,
-    )
-
-    try:
-        while True:
-            choice = run_menu(screen, tracker, config)
-            if choice != "start":
-                break
-            run_game(screen, tracker, config, bpm=bpm)
-    finally:
-        tracker.release()
-        pygame.quit()
+    pygame.quit()

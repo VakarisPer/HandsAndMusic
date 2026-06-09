@@ -1,8 +1,12 @@
-"""
-Entry point for Hand Gesture-Controlled Rhythm Game.
-"""
+"""Project entrypoint."""
 
-from GameLoop import start
+from src.core.game_app import GameApp
 
-if __name__ == '__main__':
-    start()
+
+def main() -> None:
+    app = GameApp()
+    app.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,17 +1,3 @@
-"""
-Unit tests for Hand Gesture-Controlled Rhythm Game.
-
-Covers:
-- GameObject point-collision and self-removal
-- Concrete subclass setup (Tile, Catcher) + abstract base enforcement
-- TileSpawner (single tile, full row, fixed speed, kick variant)
-- MusicSpawner BPM-based timing + beat skip + burst interval
-- Pointer click debouncing (no spam-hold)
-- Missed-tile drop logic + score penalty
-- ScoreManager persistence
-- GameConfig singleton
-"""
-
 import json
 import os
 import tempfile
@@ -21,26 +7,26 @@ import pygame
 
 from GameLoop import (
     Catcher, GameObject, Tile, TileSpawner, MusicSpawner,
-    _drop_missed_tiles, _handle_pointer_collision, _handle_open_palm,
-    _resolve_score,
+    drop_missed_tiles, handle_pointer_click, handle_open_palm,
+    resolve_frame_score,
 )
 from config import GameConfig
 from score_manager import ScoreManager
 
 
-def _new_frame_state():
-    return {"used": set(), "caught": set(),
-            "had_tiles": set(), "to_remove": []}
+def make_frame_state():
+    return {
+        "lanes_clicked": set(),
+        "lanes_caught": set(),
+        "lanes_with_tiles": set(),
+        "tiles_to_remove": [],
+        "catch_positions": [],
+    }
 
-
-# ---------------------------------------------------------------------------
-# Game objects
-# ---------------------------------------------------------------------------
 
 class TestGameObject(unittest.TestCase):
     def setUp(self):
         pygame.init()
-        # GameObject is abstract; use Tile to exercise base behavior.
         self.obj = Tile(1, pygame.math.Vector2(100, 100), (255, 0, 0), 100)
         self.obj.size = 30
 
@@ -51,9 +37,9 @@ class TestGameObject(unittest.TestCase):
         self.assertFalse(self.obj.point_collision(500, 500, radius=10))
 
     def test_display_size_with_click_effect(self):
-        self.assertEqual(self.obj.get_display_size(), 30)
+        self.assertEqual(self.obj.display_size(), 30)
         self.obj.click_effect = 5
-        self.assertEqual(self.obj.get_display_size(), 55)
+        self.assertEqual(self.obj.display_size(), 55)
 
     def test_object_deletion(self):
         obj_list = [self.obj]
@@ -84,10 +70,6 @@ class TestInheritanceHierarchy(unittest.TestCase):
             GameObject("x", pygame.math.Vector2(0, 0), 10,
                        (0, 0, 0), 0, None)
 
-
-# ---------------------------------------------------------------------------
-# Spawners
-# ---------------------------------------------------------------------------
 
 class TestTileSpawner(unittest.TestCase):
     def setUp(self):
@@ -121,7 +103,6 @@ class TestTileSpawner(unittest.TestCase):
         self.assertEqual(len(tiles), 5)
         lanes = sorted(tile.position.x for tile in tiles)
         self.assertEqual(lanes, sorted(self.lane_positions))
-        # Burst tiles are flagged + visually distinct.
         self.assertTrue(all(tile.is_burst for tile in tiles))
         self.assertTrue(all(tile.color == GameConfig.COLOR_BURST
                             for tile in tiles))
@@ -138,19 +119,22 @@ class TestTileSpawner(unittest.TestCase):
         tiles[0].update(0.1)
         self.assertGreater(tiles[0].position.y, start_y)
 
+    def test_golden_tile_flag_exists(self):
+        tile = Tile(99, pygame.math.Vector2(500, 100), GameConfig.COLOR_GOLDEN,
+                    200, is_golden=True)
+        self.assertTrue(tile.is_golden)
+        self.assertEqual(tile.color, GameConfig.COLOR_GOLDEN)
+
 
 class TestMusicSpawner(unittest.TestCase):
     def setUp(self):
         pygame.init()
         self.lane_positions = [440, 540, 640, 740, 840]
         self.tile_spawner = TileSpawner(1280, self.lane_positions)
-        # 120 BPM => 0.5s/beat. travel_time 2.0s => first spawn at t=-2.0.
         self.music = MusicSpawner(self.tile_spawner, bpm=120,
                                   travel_time=2.0, beat_skip=1)
 
     def test_no_flood_at_song_start(self):
-        """At t=0 the spawner only emits the single beat whose pre-spawn
-        time is exactly 0 — no flood of past-beat tiles."""
         tiles = []
         self.music.update(0.0, tiles, "sequential")
         self.assertLessEqual(len(tiles), 1)
@@ -158,7 +142,6 @@ class TestMusicSpawner(unittest.TestCase):
     def test_spawning_continues_after_lead_in(self):
         tiles = []
         self.music.update(2.0, tiles, "sequential")
-        # 120 BPM, travel 2.0s. Eligible spawn_times: 0.0, 0.5, 1.0, 1.5, 2.0
         self.assertEqual(len(tiles), 5)
 
     def test_beat_skip_drops_tiles(self):
@@ -171,22 +154,14 @@ class TestMusicSpawner(unittest.TestCase):
 
     def test_burst_interval_spawns_full_row(self):
         spawner = TileSpawner(1280, self.lane_positions)
-        # travel_time=0 → no initial skip, beats 0..4 process at t=2.0s.
         music = MusicSpawner(spawner, bpm=120, travel_time=0.0,
                              beat_skip=1, burst_interval=4)
         tiles = []
         music.update(2.0, tiles, "sequential")
-        # Beats 0,1,2,3 single-tile + beat 4 burst (5 tiles) = 9 tiles.
         self.assertEqual(len(tiles), 9)
 
 
-# ---------------------------------------------------------------------------
-# Click debounce + missed tiles
-# ---------------------------------------------------------------------------
-
 class TestPointerDebounce(unittest.TestCase):
-    """Holding the finger over a catcher must not count as multiple clicks."""
-
     def setUp(self):
         pygame.init()
         self.config = GameConfig()
@@ -198,52 +173,47 @@ class TestPointerDebounce(unittest.TestCase):
         )
 
     def test_first_frame_inside_clicks(self):
-        state = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], state, self.config)
-        self.assertIn(0, state["used"])
+        state = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], state, self.config)
+        self.assertIn(0, state["lanes_clicked"])
         self.assertFalse(self.catcher.pointer_armed[0])
 
     def test_held_finger_does_not_reclick(self):
-        state1 = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], state1, self.config)
-        state2 = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], state2, self.config)
-        self.assertNotIn(0, state2["used"])
+        state1 = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], state1, self.config)
+        state2 = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], state2, self.config)
+        self.assertNotIn(0, state2["lanes_clicked"])
 
     def test_releasing_rearms_for_next_click(self):
-        s1 = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], s1, self.config)
-        # Move finger far away — should re-arm.
-        s2 = _new_frame_state()
-        _handle_pointer_collision((0, 0), 0,
-                                  [self.catcher], [], s2, self.config)
+        s1 = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], s1, self.config)
+        s2 = make_frame_state()
+        handle_pointer_click((0, 0), 0,
+                             [self.catcher], [], s2, self.config)
         self.assertTrue(self.catcher.pointer_armed[0])
-        # Now another click counts.
-        s3 = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], s3, self.config)
-        self.assertIn(0, s3["used"])
+        s3 = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], s3, self.config)
+        self.assertIn(0, s3["lanes_clicked"])
 
     def test_two_hands_armed_independently(self):
-        s = _new_frame_state()
-        _handle_pointer_collision(self.center, 0,
-                                  [self.catcher], [], s, self.config)
-        # Hand 0 disarmed, hand 1 still armed.
+        s = make_frame_state()
+        handle_pointer_click(self.center, 0,
+                             [self.catcher], [], s, self.config)
         self.assertFalse(self.catcher.pointer_armed[0])
         self.assertTrue(self.catcher.pointer_armed[1])
-        s2 = _new_frame_state()
-        _handle_pointer_collision(self.center, 1,
-                                  [self.catcher], [], s2, self.config)
-        self.assertIn(0, s2["used"])  # hand 1 click registered
+        s2 = make_frame_state()
+        handle_pointer_click(self.center, 1,
+                             [self.catcher], [], s2, self.config)
+        self.assertIn(0, s2["lanes_clicked"])
 
 
 class TestBurstRules(unittest.TestCase):
-    """Open_Palm catches ONLY burst tiles; pointer catches ONLY normals."""
-
     def setUp(self):
         pygame.init()
         self.config = GameConfig()
@@ -260,31 +230,31 @@ class TestBurstRules(unittest.TestCase):
 
     def test_pointer_ignores_burst_tile(self):
         tiles = [self._tile_at_catcher(is_burst=True)]
-        state = _new_frame_state()
-        _handle_pointer_collision(self.center, 0, [self.catcher],
-                                  tiles, state, self.config)
-        self.assertNotIn(0, state["caught"])
+        state = make_frame_state()
+        handle_pointer_click(self.center, 0, [self.catcher],
+                             tiles, state, self.config)
+        self.assertNotIn(0, state["lanes_caught"])
 
     def test_pointer_catches_normal_tile(self):
         tiles = [self._tile_at_catcher(is_burst=False)]
-        state = _new_frame_state()
-        _handle_pointer_collision(self.center, 0, [self.catcher],
-                                  tiles, state, self.config)
-        self.assertIn(0, state["caught"])
+        state = make_frame_state()
+        handle_pointer_click(self.center, 0, [self.catcher],
+                             tiles, state, self.config)
+        self.assertIn(0, state["lanes_caught"])
 
     def test_palm_ignores_normal_tile(self):
         tiles = [self._tile_at_catcher(is_burst=False)]
-        state = _new_frame_state()
-        _handle_open_palm([self.catcher], tiles, state,
-                          screen_height=720, config=self.config)
-        self.assertNotIn(0, state["caught"])
+        state = make_frame_state()
+        handle_open_palm([self.catcher], tiles, state,
+                         screen_height=720, config=self.config)
+        self.assertNotIn(0, state["lanes_caught"])
 
     def test_palm_catches_burst_tile(self):
         tiles = [self._tile_at_catcher(is_burst=True)]
-        state = _new_frame_state()
-        _handle_open_palm([self.catcher], tiles, state,
-                          screen_height=720, config=self.config)
-        self.assertIn(0, state["caught"])
+        state = make_frame_state()
+        handle_open_palm([self.catcher], tiles, state,
+                         screen_height=720, config=self.config)
+        self.assertIn(0, state["lanes_caught"])
 
 
 class TestMissedTiles(unittest.TestCase):
@@ -297,8 +267,8 @@ class TestMissedTiles(unittest.TestCase):
         tile = Tile(1, pygame.math.Vector2(100, 800),
                     (255, 0, 0), 250, list_ref=tiles)
         tiles.append(tile)
-        penalty, count = _drop_missed_tiles(tiles, screen_height=720,
-                                            config=self.config)
+        penalty, count = drop_missed_tiles(tiles, screen_height=720,
+                                           config=self.config)
         self.assertEqual(tiles, [])
         self.assertEqual(penalty, self.config.POINTS_PER_MISS)
         self.assertEqual(count, 1)
@@ -308,16 +278,12 @@ class TestMissedTiles(unittest.TestCase):
         tile = Tile(1, pygame.math.Vector2(100, 400),
                     (255, 0, 0), 250, list_ref=tiles)
         tiles.append(tile)
-        penalty, count = _drop_missed_tiles(tiles, screen_height=720,
-                                            config=self.config)
+        penalty, count = drop_missed_tiles(tiles, screen_height=720,
+                                           config=self.config)
         self.assertEqual(len(tiles), 1)
         self.assertEqual(penalty, 0)
         self.assertEqual(count, 0)
 
-
-# ---------------------------------------------------------------------------
-# ScoreManager + Config
-# ---------------------------------------------------------------------------
 
 class TestScoreManager(unittest.TestCase):
     def setUp(self):
@@ -335,7 +301,7 @@ class TestScoreManager(unittest.TestCase):
         self.manager.add_score(200, "Player2")
         reloaded = ScoreManager(self.scores_file)
         self.assertEqual(len(reloaded.scores), 2)
-        self.assertEqual(reloaded.scores[0]["score"], 200)  # sorted desc
+        self.assertEqual(reloaded.scores[0]["score"], 200)
 
     def test_high_scores_limit(self):
         for i in range(10):
@@ -363,34 +329,48 @@ class TestScoreManager(unittest.TestCase):
 
 
 class TestCombo(unittest.TestCase):
-    """Combo grows on catches, resets on bad click."""
-
     def setUp(self):
         pygame.init()
         self.config = GameConfig()
-        self.catcher = Catcher(0, pygame.math.Vector2(640, 600))
 
-    def test_catch_increments_combo(self):
-        state = _new_frame_state()
-        state["used"].add(0)
-        state["caught"].add(0)
-        score, combo = _resolve_score([self.catcher], state, 0, 3, self.config)
+    def test_catch_increments_combo_and_scores_by_combo(self):
+        catcher = Catcher(0, pygame.math.Vector2(640, 600))
+        state = make_frame_state()
+        state["lanes_clicked"].add(0)
+        state["lanes_caught"].add(0)
+        score, combo = resolve_frame_score([catcher], state, 0, 3, self.config)
         self.assertEqual(combo, 4)
-        self.assertEqual(score, self.config.POINTS_PER_CATCH)
+        self.assertEqual(score, self.config.POINTS_PER_CATCH * 3)
 
     def test_bad_click_resets_combo(self):
-        state = _new_frame_state()
-        state["used"].add(0)
-        state["had_tiles"].add(0)
-        score, combo = _resolve_score([self.catcher], state, 10, 5,
-                                      self.config)
+        catcher = Catcher(0, pygame.math.Vector2(640, 600))
+        state = make_frame_state()
+        state["lanes_clicked"].add(0)
+        state["lanes_with_tiles"].add(0)
+        score, combo = resolve_frame_score([catcher], state, 10, 5,
+                                           self.config)
         self.assertEqual(combo, 0)
         self.assertEqual(score, 10 - self.config.POINTS_PER_BAD_CLICK)
+
+    def test_first_catch_with_combo_one(self):
+        catcher = Catcher(0, pygame.math.Vector2(640, 600))
+        state = make_frame_state()
+        state["lanes_clicked"].add(0)
+        state["lanes_caught"].add(0)
+        score, combo = resolve_frame_score([catcher], state, 0, 1, self.config)
+        self.assertEqual(combo, 2)
+        self.assertEqual(score, self.config.POINTS_PER_CATCH * 1)
 
 
 class TestGameConfig(unittest.TestCase):
     def test_singleton(self):
         self.assertIs(GameConfig(), GameConfig())
+
+    def test_golden_tile_points(self):
+        self.assertEqual(GameConfig.GOLDEN_TILE_POINTS, 200)
+
+    def test_points_per_catch(self):
+        self.assertEqual(GameConfig.POINTS_PER_CATCH, 10)
 
 
 if __name__ == "__main__":
