@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import json
 import random
+from pathlib import Path
 
 import pygame
 
 from src.config.settings import GAMEPLAY, GESTURE_TO_LANE, RHYTHM, WINDOW
 from src.core.factory import SystemFactory
 from src.core.state_machine import StateMachine
-from src.domain.models import LaneReceptor, Note, NoteKind
+from src.domain.models import ChartEvent, LaneReceptor, Note, NoteKind
 from src.systems.beat_grid import BeatGrid
 from src.systems.chart_generator import ChartGenerator
 from particles import ParticleSystem
@@ -18,13 +20,24 @@ from particles import ParticleSystem
 class GameApp:
     """Coordinates all game systems while keeping concerns separated."""
 
-    def __init__(self, factory: SystemFactory | None = None, audio_file: str | None = None) -> None:
+    def __init__(self, factory: SystemFactory | None = None,
+                 audio_file: str | None = None,
+                 level_name: str = "") -> None:
         self.factory = factory or SystemFactory()
         self.state_machine = StateMachine()
         self.store = self.factory.create_session_store()
         calibration = self.store.load_calibration()
 
-        self.audio_clock = self.factory.create_audio_clock(audio_file=audio_file)
+        # Determine audio: level's file overrides settings
+        level_path = Path("levels") / f"{level_name}.json"
+        resolved_audio = audio_file
+        if level_name and level_path.exists():
+            level_data = json.loads(level_path.read_text(encoding="utf-8"))
+            lvl_audio = level_data.get("audio_file", "")
+            if lvl_audio and Path(lvl_audio).exists():
+                resolved_audio = lvl_audio
+
+        self.audio_clock = self.factory.create_audio_clock(audio_file=resolved_audio)
         self.input_system = self.factory.create_input_system(GESTURE_TO_LANE)
         self.render_system = None
         self.spawn_system = self.factory.create_spawn_system()
@@ -34,15 +47,29 @@ class GameApp:
         self.audio_offset_ms = calibration["audio_offset_ms"]
         self.particles = ParticleSystem()
 
-        beat_grid = BeatGrid(bpm=RHYTHM.bpm, duration_seconds=RHYTHM.song_duration_seconds)
-        self.chart_events = ChartGenerator(
-            lane_count=GAMEPLAY.lane_count,
-            seed=GAMEPLAY.chart_seed,
-            chord_interval_beats=GAMEPLAY.chord_interval_beats,
-            hold_chance=GAMEPLAY.hold_chance,
-            double_note_chance=GAMEPLAY.double_note_chance,
-            golden_chance=GAMEPLAY.golden_note_chance,
-        ).generate(beat_grid.generate_beats().tolist())
+        if level_name and level_path.exists():
+            raw_notes = level_data.get("notes", [])
+            self.chart_events = []
+            for n in raw_notes:
+                kind = NoteKind.CHORD if n.get("kind") == "chord" else NoteKind.TAP
+                ev = ChartEvent(lane=n["lane"],
+                                time_seconds=n["time_seconds"], kind=kind)
+                ev.is_golden = random.random() < GAMEPLAY.golden_note_chance
+                self.chart_events.append(ev)
+            self._song_duration = (max(e.time_seconds for e in self.chart_events) + 5.0) \
+                if self.chart_events else RHYTHM.song_duration_seconds
+            print(f"[Game] Loaded level '{level_name}': {len(self.chart_events)} notes")
+        else:
+            beat_grid = BeatGrid(bpm=RHYTHM.bpm, duration_seconds=RHYTHM.song_duration_seconds)
+            self.chart_events = ChartGenerator(
+                lane_count=GAMEPLAY.lane_count,
+                seed=GAMEPLAY.chart_seed,
+                chord_interval_beats=GAMEPLAY.chord_interval_beats,
+                hold_chance=GAMEPLAY.hold_chance,
+                double_note_chance=GAMEPLAY.double_note_chance,
+                golden_chance=GAMEPLAY.golden_note_chance,
+            ).generate(beat_grid.generate_beats().tolist())
+            self._song_duration = RHYTHM.song_duration_seconds
         self.notes: list[Note] = []
         self._previous_active_lanes: set[int] = set()
         self._receptor_feedback_colors: dict[int, tuple[int, int, int]] = {
@@ -126,7 +153,7 @@ class GameApp:
             )
             pygame.display.flip()
 
-            if current_time > RHYTHM.song_duration_seconds and not self.notes:
+            if current_time > self._song_duration and not self.notes:
                 running = False
 
         score = self.score_system.state.score

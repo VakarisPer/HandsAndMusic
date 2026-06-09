@@ -1,0 +1,1051 @@
+{
+  "name": "Notion",
+  "audio_file": "C:/Users/vakar/Desktop/HandsAndMusic/HandsAndMusic/audio/Notion.mp3",
+  "notes": [
+    {
+      "lane": 3,
+      "time_seconds": 5.063,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 6.157,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 7.157,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 8.282,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 10.469,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 10.469,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 10.469,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 10.469,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 10.469,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 12.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 12.766,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 12.985,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 13.219,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 13.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 13.844,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 14.266,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 14.657,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 15.11,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 15.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 15.907,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 16.344,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 16.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 17.094,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 17.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 17.813,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 18.141,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 18.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 18.86,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 19.219,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 19.61,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 20.0,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 20.375,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 20.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 21.094,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 21.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 21.875,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 22.235,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 22.641,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 23.016,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 23.36,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 23.766,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 24.125,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 24.469,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 24.938,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 25.266,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 25.657,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 26.016,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 26.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 26.719,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 27.157,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 27.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 27.922,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 28.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 28.703,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 29.047,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 29.407,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 29.75,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 30.141,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 30.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 30.953,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 31.344,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 31.703,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 32.063,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 32.375,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 32.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 33.11,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 33.422,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 33.844,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 34.282,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 34.688,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 35.11,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 35.532,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 35.953,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 36.844,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 36.844,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 36.844,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 36.844,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 36.844,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 37.282,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 37.672,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 38.016,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 38.422,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 38.797,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 39.157,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 39.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 39.875,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 40.235,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 40.625,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 41.016,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 41.375,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 41.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 42.141,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 42.547,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 42.907,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 43.282,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 43.625,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 43.985,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 44.328,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 44.719,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 45.141,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 45.563,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 46.328,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 46.688,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 47.016,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 47.375,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 47.719,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 48.11,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 48.813,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 49.219,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 49.61,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 50.0,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 50.36,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 50.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 51.094,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 51.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 51.938,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 52.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 52.641,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 53.032,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 53.36,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 53.75,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 54.141,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 54.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 54.891,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 55.172,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 55.594,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 55.735,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 56.235,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 56.344,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 56.703,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 57.094,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 57.203,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 57.485,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 57.891,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 58.25,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 58.422,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 58.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 58.907,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 59.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 59.625,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 59.782,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 60.094,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 61.172,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 61.563,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 61.953,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 62.328,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 62.688,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 63.125,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 63.469,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 63.86,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 64.594,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 64.594,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 64.594,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 64.594,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 64.594,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 64.735,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 64.735,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 64.735,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 64.735,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 64.735,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 65.032,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 65.032,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 65.032,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 65.032,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 65.032,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 65.438,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 65.438,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 65.438,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 65.438,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 65.438,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 66.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 66.594,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 66.891,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 67.282,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 67.485,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 67.875,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 68.0,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 68.328,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 68.782,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 69.188,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 69.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 70.688,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 71.078,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 71.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 71.844,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 72.157,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 72.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 72.891,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 72.891,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 72.891,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 72.891,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 72.891,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 73.157,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 73.157,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 73.157,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 73.157,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 73.157,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 74.016,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 74.016,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 74.016,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 74.016,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 74.016,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 74.391,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 74.391,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 74.391,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 74.391,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 74.391,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 75.516,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 75.907,
+      "kind": "tap"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ class GameConfig:
 
     AUDIO_FILE = ""
     USERNAME = ""
+    SELECTED_LEVEL = ""
     MUSIC_VOLUME = 0.7
     USE_MUSIC_SPAWNER = True
     BEAT_SKIP = 2

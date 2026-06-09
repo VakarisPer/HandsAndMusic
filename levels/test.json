@@ -1,0 +1,606 @@
+{
+  "name": "test",
+  "audio_file": "C:/Users/vakar/Desktop/HandsAndMusic/HandsAndMusic/audio/song.mp3",
+  "notes": [
+    {
+      "lane": 0,
+      "time_seconds": 48.515,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 48.515,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 48.515,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 48.515,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 48.515,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 48.812,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 48.812,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 48.812,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 48.812,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 48.812,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 49.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 49.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 49.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 49.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 49.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 49.406,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 49.406,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 49.406,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 49.406,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 49.406,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 52.437,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 52.437,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 52.437,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 52.437,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 52.437,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 53.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 53.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 53.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 53.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 53.219,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 54.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 54.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 54.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 54.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 54.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 56.14,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 56.14,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 56.14,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 56.14,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 56.14,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 56.969,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 56.969,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 56.969,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 56.969,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 56.969,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 59.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 59.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 59.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 59.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 59.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 60.047,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 60.047,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 60.047,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 60.047,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 60.047,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 77.234,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 77.234,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 77.234,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 77.234,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 77.234,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 78.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 78.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 78.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 78.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 78.015,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 78.765,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 78.765,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 78.765,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 78.765,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 78.765,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 79.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 79.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 79.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 79.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 79.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 80.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 80.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 80.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 80.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 80.297,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 81.062,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 81.062,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 81.062,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 81.062,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 81.062,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 81.797,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 81.797,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 81.797,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 81.797,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 81.797,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 82.937,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 82.937,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 82.937,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 82.937,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 82.937,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 83.703,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 83.703,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 83.703,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 83.703,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 83.703,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 84.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 84.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 84.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 84.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 84.5,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 86.031,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 86.031,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 86.031,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 86.031,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 86.031,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 88.687,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 88.687,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 88.687,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 88.687,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 88.687,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 89.125,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 89.125,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 89.125,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 89.125,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 89.125,
+      "kind": "chord"
+    }
+  ]
+}

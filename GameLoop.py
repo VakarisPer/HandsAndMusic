@@ -167,11 +167,10 @@ def tile_generator(tiles, screen, spawn_count=0, spawn_pattern="sequential", lan
     tiles.append(new_tile)
 
 def display_user_camera(screen):
-
-    # Initialize tracker if not already done
-    if not hasattr(display_user_camera, 'tracker'):
+    if not hasattr(display_user_camera, 'tracker') \
+            or display_user_camera.tracker is None:
         display_user_camera.tracker = HandTracker()
-    
+
     tracker = display_user_camera.tracker
     
     # Process frame: capture, detect, analyze, draw

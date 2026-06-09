@@ -40,7 +40,8 @@ def main():
 
             from src.core.game_app import GameApp
             audio_file = config.AUDIO_FILE if config.AUDIO_FILE else None
-            app = GameApp(audio_file=audio_file)
+            app = GameApp(audio_file=audio_file,
+                          level_name=config.SELECTED_LEVEL)
             score, max_combo = app.run(username)
             score_manager.add_score(score, username, max_combo)
 

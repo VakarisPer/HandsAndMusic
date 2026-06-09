@@ -50,7 +50,6 @@ class RenderSystem:
     def __init__(self):
         self.font_score = pygame.font.Font(_FONT_PATH, 32)
         self.font_combo = pygame.font.Font(_FONT_PATH, 36)
-        self.font_max_combo = pygame.font.Font(_FONT_PATH, 22)
         self._score_anim = BouncingNumber()
         self._combo_anim = BouncingNumber()
         self._camera_surface = None
@@ -185,8 +184,3 @@ class RenderSystem:
                                  glow_surf.get_rect(), border_radius=8)
                 screen.blit(glow_surf, (20 - glow, 70 - glow))
             screen.blit(combo_surf, (20, 70))
-
-        if score_state.max_combo > 0:
-            mc_surf = self.font_max_combo.render(
-                f"Max Combo: {score_state.max_combo}", True, (255, 160, 30))
-            screen.blit(mc_surf, (20, 110))
