@@ -1,5 +1,9 @@
 # Hands & Music
 
+
+<img width="478" height="493" alt="Screenshot 2026-06-09 163359" src="https://github.com/user-attachments/assets/53c452e5-7565-4e76-b094-a6b6692d0a52" />
+<img width="962" height="542" alt="Screenshot 2026-06-09 163347" src="https://github.com/user-attachments/assets/e66ada72-23ec-4fbd-9445-1a445eb65f96" />
+
 Hand gesture-controlled rhythm game using MediaPipe + OpenCV + Pygame + Robotika pixel font.
 
 Catch falling tiles by pointing your fingers at the correct lane, trigger burst rows with Open Palm, and score big with golden tiles. Features real-time hand tracking, animated combo scoring, particle effects, a persistent leaderboard, and a built-in **manual level editor** for creating your own beatmaps.
