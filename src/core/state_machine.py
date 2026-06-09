@@ -2,14 +2,12 @@
 
 from enum import Enum, auto
 
-
 class GameState(Enum):
     MENU = auto()
     PLAYING = auto()
     PAUSED = auto()
     GAME_OVER = auto()
     RESULTS = auto()
-
 
 class StateMachine:
     """Keeps state transitions explicit and centralized."""
@@ -28,4 +26,3 @@ class StateMachine:
 
     def finish(self) -> None:
         self.state = GameState.RESULTS
-
