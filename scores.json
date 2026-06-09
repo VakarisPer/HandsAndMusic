@@ -20,9 +20,21 @@
     "timestamp": "2026-06-08T17:38:48.255445"
   },
   {
+    "score": 1167,
+    "player": "vakaris",
+    "max_combo": 12,
+    "timestamp": "2026-06-09T15:27:05.941497"
+  },
+  {
     "score": 1045,
     "player": "Player",
     "timestamp": "2026-06-08T18:33:02.814157"
+  },
+  {
+    "score": 950,
+    "player": "vakaris",
+    "max_combo": 14,
+    "timestamp": "2026-06-09T15:08:50.306692"
   },
   {
     "score": 650,
@@ -38,5 +50,23 @@
     "score": 335,
     "player": "Player",
     "timestamp": "2026-06-08T17:58:52.634245"
+  },
+  {
+    "score": 0,
+    "player": "vakaris",
+    "max_combo": 0,
+    "timestamp": "2026-06-09T15:30:38.804426"
+  },
+  {
+    "score": -37,
+    "player": "vakaris",
+    "max_combo": 0,
+    "timestamp": "2026-06-09T15:02:20.148859"
+  },
+  {
+    "score": -183,
+    "player": "vakari",
+    "max_combo": 7,
+    "timestamp": "2026-06-09T14:59:57.995937"
   }
 ]

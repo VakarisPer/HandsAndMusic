@@ -1,6 +1,5 @@
 import pygame
 import random
-import audio
 from hand_tracking.Tracking import HandTracker
 import cv2
 import numpy as np
@@ -200,26 +199,18 @@ def display_user_camera(screen):
     # Blit camera feed to screen
     screen.blit(frame_surface, (0, 0))
 
-def Start():
-    #init
-    
+def Start(username="Player"):
     score = 0
-    pygame.init()  # Initialize all pygame modules including font
+    combo = 0
+    max_combo = 0
+    pygame.init()
     screen = pygame.display.set_mode((1280, 720))  # Fixed resolution for better performance
     
-    pygame.display.set_caption("Rhythm Game")
+    pygame.display.set_caption("Hands & Music")
     clock = pygame.time.Clock()
     running = True
     dt = 0
 
-    # Load and analyze music
-    #print("[Game] Initializing audio...")
-    #music_data = audio.analyze_audio(audio.AUDIO_FILE)
-    #start_time = audio.play_audio(audio.AUDIO_FILE)
-    #spawner = MusicSpawner(music_data['beat_times'], music_data['kick_times'], screen.get_width())
-    #print(f"[Game] Ready! Game will spawn tiles based on {len(music_data['beat_times'])} beats")
-
-    # objects 
     tiles = []
 
     # 5 catchers with equal spacing across screen
@@ -258,6 +249,9 @@ def Start():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
         screen.fill("black")
         display_user_camera(screen)
@@ -301,6 +295,9 @@ def Start():
                         if tile not in tiles_to_remove:
                             tiles_to_remove.append(tile)
                             score += 1
+                            combo += 1
+                            if combo > max_combo:
+                                max_combo = combo
         
         # Pointer collision detection for Hand 0
         if finger_screen_pos:
@@ -315,6 +312,9 @@ def Start():
                                 tiles_to_remove.append(tile)
                                 catcher_caught_tiles_this_frame.add(i)  # Mark catcher caught tile
                                 score += 1
+                                combo += 1
+                                if combo > max_combo:
+                                    max_combo = combo
         
         # Pointer collision detection for Hand 1 (second hand)
         if finger_screen_pos_hand1:
@@ -329,18 +329,10 @@ def Start():
                                 tiles_to_remove.append(tile)
                                 catcher_caught_tiles_this_frame.add(i)  # Mark catcher caught tile
                                 score += 1
+                                combo += 1
+                                if combo > max_combo:
+                                    max_combo = combo
         
-        # Gesture-based catching (SECONDARY - only if pointer didn't catch)
-        # if not tiles_to_remove:
-        #     for gesture_name, catcher_index in gesture_catcher_pairs:
-        #         if gesture_name == get_gesture_name and gesture_name != "Open_Palm":
-        #             catcher = catchers[catcher_index]
-        #             catcher.click_effect = 5
-                    
-        #             for tile in tiles[:]:
-        #                 if catcher.collision(tile) and tile not in tiles_to_remove:
-        #                     tiles_to_remove.append(tile)
-        #                     score += 1
 
         # Remove caught tiles
         for tile in tiles_to_remove:
@@ -359,6 +351,7 @@ def Start():
                     catcher.feedback_color = (255, 0, 0)  # Red
                     catcher.feedback_timer = 0.3  # Show for 0.3 seconds
                     score -= 1  # Lose a point for wrong action
+                    combo = 0  # Reset combo on miss
         ##
 
         for tile in tiles:
@@ -409,10 +402,16 @@ def Start():
                            (int(finger_screen_pos_hand1[0]), int(finger_screen_pos_hand1[1]) - 20), 
                            (int(finger_screen_pos_hand1[0]), int(finger_screen_pos_hand1[1]) + 20), 2)
 
-        # Draw score on screen
+        # Draw score and combo on screen
         font = pygame.font.Font(None, 48)  # Default font, size 48
         score_text = font.render(f"Score: {score}", True, (255, 255, 255))  # White text
         screen.blit(score_text, (10, 10))  # Top-left corner
+        
+        combo_font = pygame.font.Font(None, 36)
+        combo_text = combo_font.render(f"Combo: {combo}", True, (255, 200, 60))
+        screen.blit(combo_text, (10, 55))
+        max_combo_text = combo_font.render(f"Max Combo: {max_combo}", True, (255, 160, 30))
+        screen.blit(max_combo_text, (10, 90))
         
         pygame.display.flip()
         dt = clock.tick(120) / 1000
@@ -424,6 +423,19 @@ def Start():
             spawn_count += 1
             spawn_timer = 0  # Reset timer
 
-        print(f"Score: {score}, FPS: {clock.get_fps():.0f}")
-
     pygame.quit()
+    return score, max_combo
+
+
+def draw_finger_indicators(screen, hand0_pos, hand1_pos):
+    for pos, color in [(hand0_pos, (0, 255, 255)), (hand1_pos, (255, 0, 255))]:
+        if pos:
+            pygame.draw.circle(screen, color, (int(pos[0]), int(pos[1])), 15, 2)
+            pygame.draw.line(screen, color, (int(pos[0]) - 20, int(pos[1])), (int(pos[0]) + 20, int(pos[1])), 2)
+            pygame.draw.line(screen, color, (int(pos[0]), int(pos[1]) - 20), (int(pos[0]), int(pos[1]) + 20), 2)
+
+
+def to_screen_coordinates(finger_pos, screen):
+    if finger_pos is None:
+        return None
+    return (finger_pos[0] * screen.get_width(), finger_pos[1] * screen.get_height())

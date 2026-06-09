@@ -13,11 +13,7 @@ import time
 
 import pygame
 
-from src.config.settings import PROJECT
-
-# Single place to change the song.
-AUDIO_FILE = PROJECT.default_audio_file
-# Single place to change where your manual chart is saved.
+AUDIO_FILE = "music/default.wav"
 CHART_FILE = "data/manual_chart.json"
 
 

@@ -40,6 +40,8 @@ class GameplaySettings:
     chord_interval_beats: int = 16
     hold_chance: float = 0.30
     double_note_chance: float = 0.18
+    golden_note_chance: float = 0.06
+    golden_note_points: int = 200
 
 
 @dataclass(frozen=True)

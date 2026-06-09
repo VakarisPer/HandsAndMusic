@@ -20,11 +20,12 @@ class ScoreManager:
                 return []
         return []
     
-    def add_score(self, score: int, player_name: str = "Player") -> None:
+    def add_score(self, score: int, player_name: str = "Player", max_combo: int = 0) -> None:
         """Add a new score to the list and save"""
         new_entry = {
             "score": score,
             "player": player_name,
+            "max_combo": max_combo,
             "timestamp": datetime.now().isoformat()
         }
         self.scores.append(new_entry)

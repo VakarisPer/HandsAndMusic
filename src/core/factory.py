@@ -14,8 +14,8 @@ from src.vision.hand_tracker_adapter import HandTrackerAdapter
 class SystemFactory:
     """Factory Method implementation for game runtime systems."""
 
-    def create_audio_clock(self) -> AudioClock:
-        return AudioClock(audio_file=PROJECT.default_audio_file)
+    def create_audio_clock(self, audio_file: str | None = None) -> AudioClock:
+        return AudioClock(audio_file=audio_file or PROJECT.default_audio_file)
 
     def create_input_system(self, gesture_map: dict[str, int]) -> InputSystem:
         return InputSystem(gesture_map=gesture_map)

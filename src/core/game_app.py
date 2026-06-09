@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import random
+
 import pygame
 
 from src.config.settings import GAMEPLAY, GESTURE_TO_LANE, RHYTHM, WINDOW
@@ -10,18 +12,19 @@ from src.core.state_machine import StateMachine
 from src.domain.models import LaneReceptor, Note, NoteKind
 from src.systems.beat_grid import BeatGrid
 from src.systems.chart_generator import ChartGenerator
+from particles import ParticleSystem
 
 
 class GameApp:
     """Coordinates all game systems while keeping concerns separated."""
 
-    def __init__(self, factory: SystemFactory | None = None) -> None:
+    def __init__(self, factory: SystemFactory | None = None, audio_file: str | None = None) -> None:
         self.factory = factory or SystemFactory()
         self.state_machine = StateMachine()
         self.store = self.factory.create_session_store()
         calibration = self.store.load_calibration()
 
-        self.audio_clock = self.factory.create_audio_clock()
+        self.audio_clock = self.factory.create_audio_clock(audio_file=audio_file)
         self.input_system = self.factory.create_input_system(GESTURE_TO_LANE)
         self.render_system = None
         self.spawn_system = self.factory.create_spawn_system()
@@ -29,6 +32,7 @@ class GameApp:
         self.timing_judge = self.factory.create_timing_judge(calibration["input_offset_ms"])
         self.hand_adapter = self.factory.create_hand_adapter()
         self.audio_offset_ms = calibration["audio_offset_ms"]
+        self.particles = ParticleSystem()
 
         beat_grid = BeatGrid(bpm=RHYTHM.bpm, duration_seconds=RHYTHM.song_duration_seconds)
         self.chart_events = ChartGenerator(
@@ -37,12 +41,14 @@ class GameApp:
             chord_interval_beats=GAMEPLAY.chord_interval_beats,
             hold_chance=GAMEPLAY.hold_chance,
             double_note_chance=GAMEPLAY.double_note_chance,
+            golden_chance=GAMEPLAY.golden_note_chance,
         ).generate(beat_grid.generate_beats().tolist())
         self.notes: list[Note] = []
         self._previous_active_lanes: set[int] = set()
         self._receptor_feedback_colors: dict[int, tuple[int, int, int]] = {
             lane: (255, 255, 255) for lane in range(GAMEPLAY.lane_count)
         }
+        self._catch_particles: list[tuple[float, float, tuple, bool]] = []
 
     def _build_lane_positions(self, screen_width: int) -> list[float]:
         center_x = screen_width / 2
@@ -61,12 +67,13 @@ class GameApp:
             )
         return receptors
 
-    def run(self) -> None:
+    def run(self, username: str = "Player") -> tuple[int, int]:
         pygame.init()
         screen = pygame.display.set_mode((WINDOW.width, WINDOW.height))
-        pygame.display.set_caption(WINDOW.title)
+        pygame.display.set_caption(f"Hands & Music - {username}")
         clock = pygame.time.Clock()
         self.render_system = self.factory.create_render_system()
+        self.render_system.particle_system = self.particles
         lane_positions = self._build_lane_positions(screen.get_width())
         receptors = self._build_receptors(lane_positions, screen.get_height())
 
@@ -98,10 +105,12 @@ class GameApp:
             active_pointer_lanes = self._pointer_collision_lanes(pointer_positions, receptors, screen)
             active_lanes = active_pointer_lanes | self.input_system.lanes_from_keyboard()
             newly_pressed_lanes = active_lanes - self._previous_active_lanes
-            self._resolve_pointer_hits(newly_pressed_lanes, current_time, receptors)
-            self._handle_open_palm_chords(gestures, current_time, receptors)
+            self._resolve_pointer_hits(newly_pressed_lanes, current_time, receptors, lane_positions)
+            self._handle_open_palm_chords(gestures, current_time, receptors, lane_positions)
             self._resolve_misses(current_time)
             self._previous_active_lanes = active_lanes
+
+            self._spawn_catch_particles(lane_positions)
 
             self.render_system.draw_frame(
                 screen=screen,
@@ -113,18 +122,25 @@ class GameApp:
                 pointer_positions=pointer_positions,
                 receptor_feedback_colors=self._receptor_feedback_colors,
                 camera_frame=self.hand_adapter.get_frame(),
+                delta_time=dt,
             )
             pygame.display.flip()
 
             if current_time > RHYTHM.song_duration_seconds and not self.notes:
                 running = False
 
+        score = self.score_system.state.score
+        max_combo = self.score_system.state.max_combo
+
         self.audio_clock.stop()
         self.hand_adapter.shutdown()
         self.store.save_results(self.score_system.state)
         pygame.quit()
+        return score, max_combo
 
-    def _resolve_pointer_hits(self, active_lanes: set[int], current_time: float, receptors: list[LaneReceptor]) -> None:
+    def _resolve_pointer_hits(self, active_lanes: set[int], current_time: float,
+                              receptors: list[LaneReceptor],
+                              lane_positions: list[float]) -> None:
         catcher_used_this_frame = set(active_lanes)
         catcher_had_tiles_available: set[int] = set()
         catcher_caught_tiles_this_frame: set[int] = set()
@@ -135,7 +151,8 @@ class GameApp:
                 continue
             receptor = receptors[lane]
             catchable = [
-                n for n in lane_notes if abs((n.y + GAMEPLAY.note_size / 2) - (receptor.y + receptor.size / 2)) <= 75
+                n for n in lane_notes
+                if abs((n.y + GAMEPLAY.note_size / 2) - (receptor.y + receptor.size / 2)) <= 75
             ]
             if catchable:
                 catcher_had_tiles_available.add(lane)
@@ -146,6 +163,14 @@ class GameApp:
                     note.hit_time = current_time
                     catcher_caught_tiles_this_frame.add(lane)
                     self.score_system.apply_judgement(judgement)
+                    is_golden = getattr(note, 'is_golden', False)
+                    if is_golden:
+                        self.score_system.state.score += GAMEPLAY.golden_note_points
+                    self._catch_particles.append((
+                        lane_positions[lane] + 15, note.y + 15,
+                        (255, 215, 0) if is_golden else (255, 255, 255),
+                        is_golden,
+                    ))
 
         self.notes = [note for note in self.notes if not note.judged]
         self._apply_feedback(
@@ -154,7 +179,9 @@ class GameApp:
             catcher_caught_tiles_this_frame=catcher_caught_tiles_this_frame,
         )
 
-    def _handle_open_palm_chords(self, gestures: list[str], current_time: float, receptors: list[LaneReceptor]) -> None:
+    def _handle_open_palm_chords(self, gestures: list[str], current_time: float,
+                                 receptors: list[LaneReceptor],
+                                 lane_positions: list[float]) -> None:
         if "Open_Palm" not in gestures:
             return
 
@@ -179,6 +206,12 @@ class GameApp:
                     note.hit_time = current_time
                     catcher_caught_tiles_this_frame.add(lane)
                     self.score_system.apply_judgement(judgement)
+                    is_golden = getattr(note, 'is_golden', False)
+                    self._catch_particles.append((
+                        lane_positions[lane] + 15, note.y + 15,
+                        (180, 100, 255) if not is_golden else (255, 215, 0),
+                        is_golden,
+                    ))
 
         self.notes = [note for note in self.notes if not note.judged]
         self._apply_feedback(
@@ -196,6 +229,21 @@ class GameApp:
                 continue
             remaining.append(note)
         self.notes = remaining
+
+    def _spawn_catch_particles(self, lane_positions: list[float]) -> None:
+        for x, y, color, is_golden in self._catch_particles:
+            if is_golden:
+                self.particles.emit(x, y, (255, 215, 0),
+                                    count=24, speed_min=60, speed_max=250,
+                                    size_min=2, size_max=7, lifetime=1.0)
+                self.particles.emit(x, y, (255, 240, 100),
+                                    count=12, speed_min=20, speed_max=100,
+                                    size_min=1, size_max=3, lifetime=0.6)
+            else:
+                self.particles.emit(x, y, color,
+                                    count=12, speed_min=40, speed_max=180,
+                                    size_min=1.5, size_max=5, lifetime=0.8)
+        self._catch_particles.clear()
 
     def _pointer_collision_lanes(
         self,
@@ -231,4 +279,3 @@ class GameApp:
                 self.score_system.state.score -= 1
             else:
                 self._receptor_feedback_colors[lane] = (255, 255, 255)
-
