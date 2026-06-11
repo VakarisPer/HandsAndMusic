@@ -1,0 +1,106 @@
+{
+  "name": "default",
+  "audio_file": "audio/default.mp3",
+  "notes": [
+    {
+      "lane": 0,
+      "time_seconds": 2.047,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 2.531,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 2.984,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 3.187,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 3.406,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 3.89,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 4.422,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 4.875,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 5.062,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 5.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 5.797,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 6.265,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 6.765,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 6.953,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 7.203,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 7.672,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 8.109,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 8.547,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 8.781,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 8.968,
+      "kind": "tap"
+    }
+  ]
+}

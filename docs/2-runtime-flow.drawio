@@ -1,0 +1,243 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Runtime Flow" id="p2">
+    <mxGraphModel dx="900" dy="1400" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+                  pageScale="1" pageWidth="900" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="t2" value="&lt;b&gt;&lt;font size=&quot;18&quot;&gt;Hands &amp;amp; Music — Runtime Flow&lt;/font&gt;&lt;/b&gt;"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;"
+                vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="500" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Start -->
+        <mxCell id="s0" value="&lt;b&gt;Program Start&lt;/b&gt;&#10;python main.py"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="340" y="55" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Init -->
+        <mxCell id="s1" value="&lt;b&gt;Initialize&lt;/b&gt;&#10;pygame.init() · GameConfig()&#10;ScoreManager(&quot;scores.json&quot;)"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Menu -->
+        <mxCell id="s2" value="&lt;b&gt;run_menu()&lt;/b&gt;&#10;Menu Loop&#10;Camera Feed Background&#10;Rainbow Title · Gesture Navigation&#10;Leaderboard (Top 10)"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="310" y="240" width="260" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Decision -->
+        <mxCell id="s3" value="User&#10;Action?"
+                style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="360" y="355" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Settings -->
+        <mxCell id="s4" value="&lt;b&gt;Settings&lt;/b&gt;&#10;Volume · Username&#10;Browse Audio · Select Level&#10;Record New Level"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="355" width="190" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Exit -->
+        <mxCell id="s5" value="&lt;b&gt;Exit&lt;/b&gt;&#10;pygame.quit()"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="640" y="370" width="120" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Play -->
+        <mxCell id="s6" value="&lt;b&gt;Play Selected&lt;/b&gt;"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="365" y="500" width="150" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Load Chart -->
+        <mxCell id="s7" value="&lt;b&gt;Load Chart&lt;/b&gt;&#10;Manual level .json&#10;OR auto-generate from BPM"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="320" y="585" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- GameApp.run() -->
+        <mxCell id="s8" value="&lt;b&gt;GameApp.run(username)&lt;/b&gt;&#10;AudioClock.start()&#10;Main Game Loop @ 120 FPS"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="320" y="685" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Game Loop Detail -->
+        <mxCell id="glc" value="&lt;b&gt;Game Loop — Per Frame&lt;/b&gt;"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="70" y="780" width="740" height="195" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl1" value="1. Spawn Notes&#10;from ChartEvents&#10;(1.6s ahead)"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="90" y="810" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl2" value="2. Poll Input&#10;Hand Gesture&#10;or Keyboard 1-5"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="260" y="810" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl3" value="3. Resolve Hits&#10;TimingJudge:&#10;60ms / 120ms / 170ms"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="430" y="810" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl4" value="4. Update Score&#10;Perfect = 10x combo&#10;Good = 5x · Miss = -5"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="600" y="810" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl5" value="5. Render Frame&#10;Camera BG · Notes&#10;Particles · HUD"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="90" y="880" width="155" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl6" value="6. Check End&#10;ESC pressed?&#10;Song finished?"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="260" y="880" width="155" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl7" value="7. Gesture → Lane&#10;Fist→L0 Palm→L1&#10;Point→L2 Thumb→L3 V→L4"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="430" y="880" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gl8" value="8. Special&#10;Open Palm = All Lanes"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;"
+                vertex="1" parent="1">
+          <mxGeometry x="600" y="880" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Results -->
+        <mxCell id="s9" value="&lt;b&gt;Game Over · Save Score&lt;/b&gt;&#10;score_manager.add_score()&#10;scores.json (Top 10)"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="310" y="1020" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Back to Menu -->
+        <mxCell id="s10" value="&lt;b&gt;Return to Menu&lt;/b&gt;&#10;Loop Forever"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="340" y="1120" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="ea2a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s0" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2d" value="Settings"
+                style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=9;"
+                edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2e" value="Exit"
+                style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=9;"
+                edge="1" parent="1" source="s3" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2f" value="Play"
+                style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;fontSize=9;"
+                edge="1" parent="1" source="s3" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2g" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;entryX=0.5;entryY=0;exitX=1;exitY=0.5;"
+                edge="1" parent="1" source="s4" target="s2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="397" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea2h" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2i" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s7" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2j" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s8" target="glc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2k" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="glc" target="s9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2l" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="s9" target="s10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea2m" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="s10" target="s2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="1180" />
+              <mxPoint x="750" y="1180" />
+              <mxPoint x="750" y="277" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Flow arrows between game loop steps -->
+        <mxCell id="ea2n" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="gl1" target="gl2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea2o" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="gl2" target="gl3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea2p" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="gl3" target="gl4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

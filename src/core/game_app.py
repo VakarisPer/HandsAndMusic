@@ -8,13 +8,13 @@ from pathlib import Path
 
 import pygame
 
-from src.config.settings import GAMEPLAY, GESTURE_TO_LANE, RHYTHM, WINDOW
+from src.config.settings import GAMEPLAY, RHYTHM, WINDOW
 from src.core.factory import SystemFactory
 from src.core.state_machine import StateMachine
-from src.domain.models import ChartEvent, LaneReceptor, Note, NoteKind
+from src.domain.models import ChartEvent, HitFeedback, LaneReceptor, Note, NoteKind
 from src.systems.beat_grid import BeatGrid
 from src.systems.chart_generator import ChartGenerator
-from particles import ParticleSystem
+from src.systems.particles import ParticleSystem
 
 
 class GameApp:
@@ -22,23 +22,28 @@ class GameApp:
 
     def __init__(self, factory: SystemFactory | None = None,
                  audio_file: str | None = None,
-                 level_name: str = "") -> None:
+                 level_name: str = "",
+                 volume: float = 1.0) -> None:
         self.factory = factory or SystemFactory()
         self.state_machine = StateMachine()
         self.store = self.factory.create_session_store()
         calibration = self.store.load_calibration()
 
-        # Determine audio: level's file overrides settings
         level_path = Path("levels") / f"{level_name}.json"
-        resolved_audio = audio_file
+        level_data = None
         if level_name and level_path.exists():
             level_data = json.loads(level_path.read_text(encoding="utf-8"))
-            lvl_audio = level_data.get("audio_file", "")
-            if lvl_audio and Path(lvl_audio).exists():
+
+        # Determine audio: level's file overrides settings
+        resolved_audio = audio_file
+        if level_data is not None:
+            lvl_audio = self._resolve_level_audio(level_data.get("audio_file", ""))
+            if lvl_audio:
                 resolved_audio = lvl_audio
 
-        self.audio_clock = self.factory.create_audio_clock(audio_file=resolved_audio)
-        self.input_system = self.factory.create_input_system(GESTURE_TO_LANE)
+        self.audio_clock = self.factory.create_audio_clock(
+            audio_file=resolved_audio, volume=volume)
+        self.input_system = self.factory.create_input_system()
         self.render_system = None
         self.spawn_system = self.factory.create_spawn_system()
         self.score_system = self.factory.create_score_system()
@@ -47,15 +52,14 @@ class GameApp:
         self.audio_offset_ms = calibration["audio_offset_ms"]
         self.particles = ParticleSystem()
 
-        if level_name and level_path.exists():
+        if level_data is not None:
             raw_notes = level_data.get("notes", [])
             self.chart_events = []
             for n in raw_notes:
                 kind = NoteKind.CHORD if n.get("kind") == "chord" else NoteKind.TAP
-                ev = ChartEvent(lane=n["lane"],
-                                time_seconds=n["time_seconds"], kind=kind)
-                ev.is_golden = random.random() < GAMEPLAY.golden_note_chance
-                self.chart_events.append(ev)
+                self.chart_events.append(ChartEvent(
+                    lane=n["lane"], time_seconds=n["time_seconds"], kind=kind,
+                    is_golden=random.random() < GAMEPLAY.golden_note_chance))
             self._song_duration = (max(e.time_seconds for e in self.chart_events) + 5.0) \
                 if self.chart_events else RHYTHM.song_duration_seconds
             print(f"[Game] Loaded level '{level_name}': {len(self.chart_events)} notes")
@@ -65,7 +69,6 @@ class GameApp:
                 lane_count=GAMEPLAY.lane_count,
                 seed=GAMEPLAY.chart_seed,
                 chord_interval_beats=GAMEPLAY.chord_interval_beats,
-                hold_chance=GAMEPLAY.hold_chance,
                 double_note_chance=GAMEPLAY.double_note_chance,
                 golden_chance=GAMEPLAY.golden_note_chance,
             ).generate(beat_grid.generate_beats().tolist())
@@ -76,6 +79,23 @@ class GameApp:
             lane: (255, 255, 255) for lane in range(GAMEPLAY.lane_count)
         }
         self._catch_particles: list[tuple[float, float, tuple, bool]] = []
+        self._hit_feedbacks: list[HitFeedback] = []
+
+    @staticmethod
+    def _resolve_level_audio(audio_file: str) -> str | None:
+        """Resolve a level's audio path, tolerating levels recorded on
+        another machine (absolute paths) by falling back to the filename
+        in the local music/ and audio/ folders."""
+        if not audio_file:
+            return None
+        if Path(audio_file).exists():
+            return audio_file
+        filename = Path(audio_file).name
+        for folder in ("music", "audio"):
+            candidate = Path(folder) / filename
+            if candidate.exists():
+                return str(candidate)
+        return None
 
     def _build_lane_positions(self, screen_width: int) -> list[float]:
         center_x = screen_width / 2
@@ -134,7 +154,7 @@ class GameApp:
             newly_pressed_lanes = active_lanes - self._previous_active_lanes
             self._resolve_pointer_hits(newly_pressed_lanes, current_time, receptors, lane_positions)
             self._handle_open_palm_chords(gestures, current_time, receptors, lane_positions)
-            self._resolve_misses(current_time)
+            self._resolve_misses(receptors, lane_positions)
             self._previous_active_lanes = active_lanes
 
             self._spawn_catch_particles(lane_positions)
@@ -148,9 +168,11 @@ class GameApp:
                 active_lanes=active_lanes,
                 pointer_positions=pointer_positions,
                 receptor_feedback_colors=self._receptor_feedback_colors,
+                hit_feedbacks=self._hit_feedbacks,
                 camera_frame=self.hand_adapter.get_frame(),
                 delta_time=dt,
             )
+            self._hit_feedbacks.clear()
             pygame.display.flip()
 
             if current_time > self._song_duration and not self.notes:
@@ -161,98 +183,82 @@ class GameApp:
 
         self.audio_clock.stop()
         self.hand_adapter.shutdown()
-        self.store.save_results(self.score_system.state)
         pygame.quit()
         return score, max_combo
 
     def _resolve_pointer_hits(self, active_lanes: set[int], current_time: float,
                               receptors: list[LaneReceptor],
                               lane_positions: list[float]) -> None:
-        catcher_used_this_frame = set(active_lanes)
-        catcher_had_tiles_available: set[int] = set()
-        catcher_caught_tiles_this_frame: set[int] = set()
-
-        for lane in active_lanes:
-            lane_notes = [n for n in self.notes if n.lane == lane and not n.judged]
-            if not lane_notes:
-                continue
-            receptor = receptors[lane]
-            catchable = [
-                n for n in lane_notes
-                if abs((n.y + GAMEPLAY.note_size / 2) - (receptor.y + receptor.size / 2)) <= 75
-            ]
-            if catchable:
-                catcher_had_tiles_available.add(lane)
-                note = min(catchable, key=lambda n: abs(n.scheduled_time - current_time))
-                judgement = self.timing_judge.classify(current_time, note.scheduled_time)
-                if judgement in {"perfect", "good", "miss"}:
-                    note.judged = True
-                    note.hit_time = current_time
-                    catcher_caught_tiles_this_frame.add(lane)
-                    self.score_system.apply_judgement(judgement)
-                    is_golden = getattr(note, 'is_golden', False)
-                    if is_golden:
-                        self.score_system.state.score += GAMEPLAY.golden_note_points
-                    self._catch_particles.append((
-                        lane_positions[lane] + 15, note.y + 15,
-                        (255, 215, 0) if is_golden else (255, 255, 255),
-                        is_golden,
-                    ))
-
-        self.notes = [note for note in self.notes if not note.judged]
-        self._apply_feedback(
-            catcher_used_this_frame=catcher_used_this_frame,
-            catcher_had_tiles_available=catcher_had_tiles_available,
-            catcher_caught_tiles_this_frame=catcher_caught_tiles_this_frame,
-        )
+        self._resolve_catches(active_lanes, current_time, receptors,
+                              lane_positions, chords_only=False,
+                              catch_color=(255, 255, 255))
 
     def _handle_open_palm_chords(self, gestures: list[str], current_time: float,
                                  receptors: list[LaneReceptor],
                                  lane_positions: list[float]) -> None:
         if "Open_Palm" not in gestures:
             return
+        self._resolve_catches(set(range(GAMEPLAY.lane_count)), current_time,
+                              receptors, lane_positions, chords_only=True,
+                              catch_color=(180, 100, 255))
 
-        catcher_used_this_frame = set(range(GAMEPLAY.lane_count))
+    def _resolve_catches(self, active_lanes: set[int], current_time: float,
+                         receptors: list[LaneReceptor],
+                         lane_positions: list[float],
+                         chords_only: bool,
+                         catch_color: tuple[int, int, int]) -> None:
         catcher_had_tiles_available: set[int] = set()
         catcher_caught_tiles_this_frame: set[int] = set()
 
-        for lane in range(GAMEPLAY.lane_count):
+        for lane in active_lanes:
             receptor = receptors[lane]
-            lane_chords = [
-                n
-                for n in self.notes
-                if n.lane == lane and n.kind == NoteKind.CHORD and not n.judged
+            catchable = [
+                n for n in self.notes
+                if n.lane == lane and not n.judged
+                and (not chords_only or n.kind == NoteKind.CHORD)
                 and abs((n.y + GAMEPLAY.note_size / 2) - (receptor.y + receptor.size / 2)) <= 75
             ]
-            if lane_chords:
-                catcher_had_tiles_available.add(lane)
-                note = min(lane_chords, key=lambda n: abs(n.scheduled_time - current_time))
-                judgement = self.timing_judge.classify(current_time, note.scheduled_time)
-                if judgement in {"perfect", "good", "miss"}:
-                    note.judged = True
-                    note.hit_time = current_time
-                    catcher_caught_tiles_this_frame.add(lane)
-                    self.score_system.apply_judgement(judgement)
-                    is_golden = getattr(note, 'is_golden', False)
-                    self._catch_particles.append((
-                        lane_positions[lane] + 15, note.y + 15,
-                        (180, 100, 255) if not is_golden else (255, 215, 0),
-                        is_golden,
-                    ))
+            if not catchable:
+                continue
+            catcher_had_tiles_available.add(lane)
+            note = min(catchable, key=lambda n: abs(n.scheduled_time - current_time))
+            judgement = self.timing_judge.classify(current_time, note.scheduled_time)
+            if judgement in {"perfect", "good", "late"}:
+                note.judged = True
+                note.hit_time = current_time
+                catcher_caught_tiles_this_frame.add(lane)
+                self.score_system.apply_judgement(judgement, is_golden=note.is_golden)
+                self._hit_feedbacks.append(HitFeedback(
+                    x=lane_positions[lane] + GAMEPLAY.note_size / 2,
+                    y=receptor.y - 60,
+                    judgement=judgement,
+                ))
+                self._catch_particles.append((
+                    lane_positions[lane] + 15, note.y + 15,
+                    (255, 215, 0) if note.is_golden else catch_color,
+                    note.is_golden,
+                ))
 
         self.notes = [note for note in self.notes if not note.judged]
         self._apply_feedback(
-            catcher_used_this_frame=catcher_used_this_frame,
+            catcher_used_this_frame=set(active_lanes),
             catcher_had_tiles_available=catcher_had_tiles_available,
             catcher_caught_tiles_this_frame=catcher_caught_tiles_this_frame,
         )
 
-    def _resolve_misses(self, current_time: float) -> None:
+    def _resolve_misses(self, receptors: list[LaneReceptor],
+                         lane_positions: list[float]) -> None:
         remaining: list[Note] = []
         for note in self.notes:
-            judgement = self.timing_judge.classify(current_time, note.scheduled_time)
-            if judgement == "late":
+            receptor = receptors[note.lane]
+            miss_threshold = receptor.y + receptor.size + 30
+            if note.y >= miss_threshold:
                 self.score_system.apply_judgement("miss")
+                self._hit_feedbacks.append(HitFeedback(
+                    x=lane_positions[note.lane] + GAMEPLAY.note_size / 2,
+                    y=receptor.y + receptor.size / 2,
+                    judgement="miss",
+                ))
                 continue
             remaining.append(note)
         self.notes = remaining
@@ -303,6 +309,5 @@ class GameApp:
                 self._receptor_feedback_colors[lane] = (0, 255, 0)
             elif lane in catcher_had_tiles_available:
                 self._receptor_feedback_colors[lane] = (255, 0, 0)
-                self.score_system.state.score -= 1
             else:
                 self._receptor_feedback_colors[lane] = (255, 255, 255)

@@ -18,20 +18,6 @@ def recognize_hand_gesture(hand_landmarks):
     fingers = _detect_extended_fingers(hand_landmarks)
     total = sum(fingers.values())
 
-    if fingers["index"] and not any([
-        fingers["thumb"], fingers["middle"], fingers["ring"], fingers["pinky"],
-    ]):
-        return "Pointing_Up"
-    if fingers["thumb"] and not any([
-        fingers["index"], fingers["middle"], fingers["ring"], fingers["pinky"],
-    ]):
-        return "Thumb_Up"
-    if fingers["index"] and fingers["middle"] and not any([
-        fingers["thumb"], fingers["ring"], fingers["pinky"],
-    ]):
-        return "Victory"
     if total == 5:
         return "Open_Palm"
-    if total == 0:
-        return "Closed_Fist"
     return "None"

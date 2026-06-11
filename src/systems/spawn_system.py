@@ -23,9 +23,8 @@ class SpawnSystem:
                 y=-40.0,
                 kind=event.kind,
                 spawned=True,
+                is_golden=event.is_golden,
             )
-            if hasattr(event, 'is_golden'):
-                note.is_golden = event.is_golden
             spawned.append(note)
             self._next_event_index += 1
         return spawned

@@ -1,15 +1,22 @@
 import mediapipe as mp
 import cv2
-from . import HelperFunctions as helpers
 from . import HandGesture as hg
 
 
 class HandTracker:
-    def __init__(self, detection_confidence=0.5, tracking_confidence=0.5):
+    def __init__(self, detection_confidence=0.5, tracking_confidence=0.5,
+                 camera_width=320, camera_height=240,
+                 model_complexity=0, draw_landmarks=True):
         self.capture = cv2.VideoCapture(0)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
+        self._draw_landmarks_flag = draw_landmarks
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=2,
+            model_complexity=model_complexity,
             min_detection_confidence=detection_confidence,
             min_tracking_confidence=tracking_confidence,
         )
@@ -80,7 +87,8 @@ class HandTracker:
         if not self.capture_frame():
             return False
         self.detect_hands()
-        self.draw_landmarks()
+        if self._draw_landmarks_flag:
+            self.draw_landmarks()
         self.analyze_gestures()
         return True
 
@@ -93,7 +101,8 @@ class HandTracker:
 
 
 if __name__ == "__main__":
-    tracker = HandTracker()
+    tracker = HandTracker(draw_landmarks=True, model_complexity=0,
+                          camera_width=640, camera_height=480)
     while tracker.capture.isOpened():
         if not tracker.process_frame():
             break

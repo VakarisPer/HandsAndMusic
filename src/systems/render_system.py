@@ -5,7 +5,8 @@ import pygame
 import cv2
 
 from pathlib import Path
-from src.domain.models import LaneReceptor, Note, ScoreState
+from src.config.settings import PROJECT
+from src.domain.models import HitFeedback, LaneReceptor, Note, ScoreState
 
 
 class BouncingNumber:
@@ -43,17 +44,43 @@ def _rainbow_color(t, brightness=0.9):
     return (r, g, b)
 
 
-_FONT_PATH = str(Path(__file__).parent.parent.parent / "fonts" / "RobotikaPixelGreek-nAWJR.otf")
+_FONT_PATH = str(Path(__file__).parent.parent.parent / PROJECT.font_path)
+
+
+class FloatingFeedback:
+    __slots__ = ("x", "y", "text", "color", "age", "lifetime")
+
+    def __init__(self, x: float, y: float, text: str, color: tuple[int, int, int]) -> None:
+        self.x = x
+        self.y = y
+        self.text = text
+        self.color = color
+        self.age = 0.0
+        self.lifetime = 0.9
+
+    def update(self, dt: float) -> bool:
+        self.age += dt
+        return self.age < self.lifetime
+
+    def scale(self) -> float:
+        t = self.age / self.lifetime
+        return 1.0 + (1.0 - t) * 0.6 + math.sin(t * 9) * 0.1
+
+    def alpha(self) -> int:
+        t = self.age / self.lifetime
+        return int(255 * (1.0 - t * t))
 
 
 class RenderSystem:
     def __init__(self):
         self.font_score = pygame.font.Font(_FONT_PATH, 32)
         self.font_combo = pygame.font.Font(_FONT_PATH, 36)
+        self.font_feedback = pygame.font.Font(_FONT_PATH, 28)
         self._score_anim = BouncingNumber()
         self._combo_anim = BouncingNumber()
         self._camera_surface = None
         self.particle_system = None
+        self._feedbacks: list[FloatingFeedback] = []
 
     def draw_frame(
         self,
@@ -65,6 +92,7 @@ class RenderSystem:
         active_lanes: set[int],
         pointer_positions: list[tuple[float, float]],
         receptor_feedback_colors: dict[int, tuple[int, int, int]],
+        hit_feedbacks: list[HitFeedback] | None = None,
         camera_frame=None,
         delta_time=0.016,
     ) -> None:
@@ -90,7 +118,7 @@ class RenderSystem:
         for note in notes:
             nx, ny = lane_positions[note.lane], note.y
 
-            if hasattr(note, 'is_golden') and note.is_golden:
+            if note.is_golden:
                 pulse = (math.sin(time.time() * 6) + 1) / 2
                 alpha = int(60 + pulse * 60)
                 glow_sz = 44
@@ -100,8 +128,6 @@ class RenderSystem:
                                  glow_surf.get_rect(), border_radius=6)
                 screen.blit(glow_surf, glow_rect)
                 note_color = (255, 215, 0)
-            elif note.kind.value == "hold":
-                note_color = (255, 200, 70)
             elif note.kind.value == "chord":
                 note_color = (180, 100, 255)
             else:
@@ -148,13 +174,37 @@ class RenderSystem:
         if self.particle_system is not None:
             self.particle_system.update_and_draw(screen, delta_time)
 
-        self._draw_hud(screen, score_state)
+        if hit_feedbacks:
+            color_map = {
+                "perfect": (0, 255, 100),
+                "good": (255, 220, 60),
+                "late": (255, 60, 60),
+                "miss": (255, 60, 60),
+            }
+            for fb in hit_feedbacks:
+                color = color_map.get(fb.judgement, (255, 255, 255))
+                self._feedbacks.append(FloatingFeedback(fb.x, fb.y, fb.judgement.upper(), color))
 
-    def _draw_hud(self, screen, score_state):
+        self._feedbacks = [f for f in self._feedbacks if f.update(delta_time)]
+        for fb in self._feedbacks:
+            scale = fb.scale()
+            alpha = fb.alpha()
+            wobble = math.sin(fb.age * 14 + fb.x * 0.3) * 4
+            text_surf = self.font_feedback.render(fb.text, True, fb.color)
+            text_surf.set_alpha(alpha)
+            w, h = text_surf.get_size()
+            scaled = pygame.transform.smoothscale(
+                text_surf, (int(w * scale), int(h * scale)))
+            screen.blit(scaled, (int(fb.x - scaled.get_width() / 2 + wobble),
+                                 int(fb.y - fb.age * 60 - scaled.get_height() / 2)))
+
+        self._draw_hud(screen, score_state, delta_time)
+
+    def _draw_hud(self, screen, score_state, delta_time):
         self._score_anim.set(score_state.score)
         self._combo_anim.set(score_state.combo)
-        self._score_anim.update(0.016)
-        self._combo_anim.update(0.016)
+        self._score_anim.update(delta_time)
+        self._combo_anim.update(delta_time)
 
         score_color = self._score_anim.color_tint((255, 255, 255))
         score_scale = self._score_anim.scale()

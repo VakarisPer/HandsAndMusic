@@ -1,0 +1,178 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Data Models and Persistence" id="p5">
+    <mxGraphModel dx="1100" dy="900" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+                  pageScale="1" pageWidth="1100" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="t5" value="&lt;b&gt;&lt;font size=&quot;18&quot;&gt;Data Models &amp;amp; Persistence&lt;/font&gt;&lt;/b&gt;"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;"
+                vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="500" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- DOMAIN MODELS -->
+        <mxCell id="dmc" value="&lt;b&gt;Domain Models (src/domain/models.py)&lt;/b&gt;"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="20" y="70" width="500" height="350" as="geometry" />
+        </mxCell>
+
+        <!-- NoteKind -->
+        <mxCell id="nk" value="&lt;b&gt;&amp;lt;&amp;lt;enum&amp;gt;&amp;gt;&lt;/b&gt;&#10;&lt;b&gt;NoteKind&lt;/b&gt;&#10;—————————&#10;TAP&#10;HOLD&#10;CHORD"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ChartEvent -->
+        <mxCell id="ce" value="&lt;b&gt;ChartEvent&lt;/b&gt;&#10;—————————&#10;+ lane: int&#10;+ time_seconds: float&#10;+ kind: NoteKind"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="210" y="100" width="180" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="n" value="&lt;b&gt;Note&lt;/b&gt;&#10;—————————&#10;+ lane: int&#10;+ scheduled_time: float&#10;+ y: float&#10;+ kind: NoteKind&#10;+ judged: bool&#10;+ spawned: bool&#10;+ golden: bool"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="180" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- LaneReceptor -->
+        <mxCell id="lr" value="&lt;b&gt;LaneReceptor&lt;/b&gt;&#10;—————————&#10;+ lane: int&#10;+ x: float&#10;+ y: float&#10;+ width: float&#10;+ height: float&#10;+ color: tuple"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="250" y="230" width="150" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- ScoreState -->
+        <mxCell id="ss" value="&lt;b&gt;ScoreState&lt;/b&gt;&#10;—————————&#10;+ score: int&#10;+ combo: int&#10;+ max_combo: int&#10;+ perfect_hits: int&#10;+ good_hits: int&#10;+ misses: int&#10;+ history: List[str]"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="395" width="180" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Persistence -->
+        <mxCell id="scoresp" value="&lt;b&gt;scores.json&lt;/b&gt;&#10;[&#10;  {score, player,&#10;   max_combo, timestamp}&#10;]&#10;Sorted desc, Top 10"
+                style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="250" y="395" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Levels -->
+        <mxCell id="levelsp" value="&lt;b&gt;levels/*.json&lt;/b&gt;&#10;{&#10;  name, audio_file,&#10;  notes: [&#10;    {lane, time_seconds, kind}&#10;  ]&#10;}"
+                style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="250" y="515" width="180" height="105" as="geometry" />
+        </mxCell>
+
+        <!-- CONFIGURATION -->
+        <mxCell id="cfgc" value="&lt;b&gt;Configuration&lt;/b&gt;"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="560" y="70" width="500" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- GameConfig -->
+        <mxCell id="gc" value="&lt;b&gt;GameConfig (Singleton)&lt;/b&gt;&#10;config.py&#10;&#10;• Screen: 1280x720, FPS 120&#10;• 25+ Color constants&#10;• Tile/Catcher sizes&#10;• Scoring constants&#10;• Particle config&#10;• Hand detection confidence&#10;• File paths"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="580" y="100" width="220" height="155" as="geometry" />
+        </mxCell>
+
+        <!-- Frozen Settings -->
+        <mxCell id="fs" value="&lt;b&gt;Settings (Frozen Dataclass)&lt;/b&gt;&#10;src/config/settings.py&#10;&#10;&lt;b&gt;WindowSettings&lt;/b&gt;&#10;  width: 1280, height: 720, fps: 120&#10;&#10;&lt;b&gt;RhythmSettings&lt;/b&gt;&#10;  bpm: 120, timing windows&#10;&#10;&lt;b&gt;GameplaySettings&lt;/b&gt;&#10;  lanes: 5, note_size, fall_speed&#10;  chart_seed, hold/double/golden chances&#10;&#10;&lt;b&gt;ProjectSettings&lt;/b&gt;&#10;  version, paths&#10;&#10;&lt;b&gt;GESTURE_TO_LANE&lt;/b&gt; dict"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;align=left;spacingLeft=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="820" y="100" width="220" height="235" as="geometry" />
+        </mxCell>
+
+        <!-- DESIGN PATTERNS -->
+        <mxCell id="opc" value="&lt;b&gt;Design Patterns Used&lt;/b&gt;"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="560" y="380" width="500" height="245" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op1" value="&lt;b&gt;Singleton&lt;/b&gt;&#10;GameConfig"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="580" y="415" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op2" value="&lt;b&gt;Factory Method&lt;/b&gt;&#10;SystemFactory"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="750" y="415" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op3" value="&lt;b&gt;Adapter&lt;/b&gt;&#10;HandTrackerAdapter"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="920" y="415" width="120" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op4" value="&lt;b&gt;State Machine&lt;/b&gt;&#10;StateMachine"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="580" y="495" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op5" value="&lt;b&gt;Value Objects&lt;/b&gt;&#10;Frozen Dataclasses"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="750" y="495" width="150" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="op6" value="&lt;b&gt;Composition&lt;/b&gt;&#10;GameApp composed&#10;of subsystems"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="920" y="495" width="120" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- GAME MODES -->
+        <mxCell id="gmc" value="&lt;b&gt;Game Modes&lt;/b&gt;"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="20" y="580" width="500" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gm1" value="&lt;b&gt;Random (Auto)&lt;/b&gt;&#10;BeatGrid + ChartGenerator&#10;Auto from BPM analysis&#10;Any .mp3/.wav file"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="615" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gm2" value="&lt;b&gt;Manual Level&lt;/b&gt;&#10;Hand-recorded beatmap&#10;Precisely synced tiles&#10;levels/*.json"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="280" y="615" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES between domain models -->
+        <mxCell id="ea5a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="nk" target="ce">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea5b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="ce" target="n">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Note on ScoreState relationship -->
+        <mxCell id="ea5c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="n" target="ss">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="130" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

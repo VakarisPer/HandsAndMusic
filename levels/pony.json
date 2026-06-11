@@ -1,0 +1,266 @@
+{
+  "name": "pony",
+  "audio_file": "music/My Little Pony Theme Song.mp3",
+  "notes": [
+    {
+      "lane": 0,
+      "time_seconds": 1.687,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 2.265,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 2.812,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 3.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 3.703,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 4.109,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 4.515,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 5.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 6.015,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 6.656,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 7.172,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 7.765,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 8.734,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 8.734,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 8.734,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 8.734,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 8.734,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 9.453,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 10.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 10.687,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 11.422,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 12.109,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 12.906,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 13.594,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 14.281,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 14.89,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 15.859,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 16.515,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 17.031,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 17.969,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 18.531,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 19.172,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 19.687,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 20.265,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 21.14,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 21.719,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 22.297,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 22.812,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 23.64,
+      "kind": "chord"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 23.64,
+      "kind": "chord"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 23.64,
+      "kind": "chord"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 23.64,
+      "kind": "chord"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 23.64,
+      "kind": "chord"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 24.5,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 25.062,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 25.594,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 26.14,
+      "kind": "tap"
+    },
+    {
+      "lane": 4,
+      "time_seconds": 26.75,
+      "kind": "tap"
+    },
+    {
+      "lane": 0,
+      "time_seconds": 27.734,
+      "kind": "tap"
+    },
+    {
+      "lane": 1,
+      "time_seconds": 28.234,
+      "kind": "tap"
+    },
+    {
+      "lane": 2,
+      "time_seconds": 28.781,
+      "kind": "tap"
+    },
+    {
+      "lane": 3,
+      "time_seconds": 29.39,
+      "kind": "tap"
+    }
+  ]
+}

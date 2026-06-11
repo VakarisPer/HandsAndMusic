@@ -1,0 +1,272 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Game Engine Subsystems" id="p3">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+                  pageScale="1" pageWidth="1200" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="t3" value="&lt;b&gt;&lt;font size=&quot;18&quot;&gt;Game Engine — Subsystem Detail&lt;/font&gt;&lt;/b&gt;"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;"
+                vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="500" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- CENTER: GameApp -->
+        <mxCell id="app" value="&lt;b&gt;GameApp&lt;/b&gt;&#10;Main Loop Orchestrator&#10;&#10;run(username) → (score, max_combo)&#10;&#10;• Load chart (manual / auto BPM)&#10;• Start AudioClock&#10;• Loop: spawn → poll → judge → score → render&#10;• Exit on ESC or song end"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=left;spacingLeft=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="420" y="380" width="360" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- SystemFactory -->
+        <mxCell id="fac" value="&lt;b&gt;SystemFactory&lt;/b&gt;&#10;Factory Method&#10;&#10;Creates all subsystems&#10;w/ dependency injection"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="420" y="600" width="170" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- StateMachine -->
+        <mxCell id="sm" value="&lt;b&gt;StateMachine&lt;/b&gt;&#10;GameState Enum&#10;PLAYING · PAUSED&#10;RESULTS"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="610" y="600" width="170" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- 7 SYSTEMS -->
+        <!-- InputSystem -->
+        <mxCell id="inp" value="&lt;b&gt;InputSystem&lt;/b&gt;&#10;Gesture → Lane Index&#10;Keyboard 1-5 fallback&#10;Open Palm → All Lanes"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="80" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- SpawnSystem -->
+        <mxCell id="spn" value="&lt;b&gt;SpawnSystem&lt;/b&gt;&#10;ChartEvents → Notes&#10;1.6s ahead offset&#10;seeded RNG determinism"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="270" y="80" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- TimingJudge -->
+        <mxCell id="tj" value="&lt;b&gt;TimingJudge&lt;/b&gt;&#10;Perfect: 60ms&#10;Good: 120ms&#10;Miss: 170ms"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="510" y="80" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ScoringSystem -->
+        <mxCell id="scr" value="&lt;b&gt;ScoringSystem&lt;/b&gt;&#10;Perfect = 10 x combo&#10;Good = 5 x combo&#10;Miss = -5&#10;Golden tile = +200"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="750" y="80" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ChartGenerator -->
+        <mxCell id="cg" value="&lt;b&gt;ChartGenerator&lt;/b&gt;&#10;Random from beat grid&#10;Chords every 16 beats&#10;Hold/Double chances&#10;Golden tiles: 6%"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="200" width="200" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- BeatGrid -->
+        <mxCell id="bg" value="&lt;b&gt;BeatGrid&lt;/b&gt;&#10;NumPy array of&#10;beat times from&#10;BPM + duration"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="270" y="200" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- RenderSystem -->
+        <mxCell id="rnd" value="&lt;b&gt;RenderSystem&lt;/b&gt;&#10;Camera background&#10;Lane lines · Notes (golden glow)&#10;Receptors (feedback glow)&#10;Finger crosshairs&#10;Particles (ParticleSystem)&#10;Animated HUD (score bounce + rainbow combo)"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="750" y="180" width="200" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- HandTrackerAdapter -->
+        <mxCell id="hta" value="&lt;b&gt;HandTrackerAdapter&lt;/b&gt;&#10;Adapter Pattern&#10;Wraps hand_tracking/&#10;Normalizes output&#10;for Game Engine"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="380" width="180" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- AudioClock -->
+        <mxCell id="ac" value="&lt;b&gt;AudioClock&lt;/b&gt;&#10;Song playback clock&#10;Deterministic timing&#10;Wraps pygame.mixer"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="510" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Models -->
+        <mxCell id="dm" value="&lt;b&gt;domain/models.py&lt;/b&gt;&#10;Note · ChartEvent&#10;LaneReceptor · ScoreState&#10;NoteKind Enum"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="510" y="200" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Settings -->
+        <mxCell id="set" value="&lt;b&gt;config/settings.py&lt;/b&gt;&#10;Frozen Dataclasses&#10;Window · Rhythm&#10;Gameplay · Project&#10;GESTURE_TO_LANE"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="250" y="400" width="160" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- ScoreManager -->
+        <mxCell id="scm" value="&lt;b&gt;score_manager.py&lt;/b&gt;&#10;Add score&#10;Get leaderboard&#10;scores.json"
+                style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="640" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="ea3a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="inp">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="130" y="350" />
+              <mxPoint x="130" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="spn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="370" y="350" />
+              <mxPoint x="370" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="tj">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="610" y="350" />
+              <mxPoint x="610" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3d" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="scr">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="850" y="350" />
+              <mxPoint x="850" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3e" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="rnd">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="850" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3f" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="cg">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="130" y="350" />
+              <mxPoint x="130" y="285" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3g" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="dm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="350" />
+              <mxPoint x="610" y="350" />
+              <mxPoint x="610" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3h" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="hta">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="422" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3i" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="ac">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="ea3j" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="fac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea3k" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="app" target="sm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea3l" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="cg" target="bg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea3m" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="hta" target="inp">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="422" />
+              <mxPoint x="210" y="160" />
+              <mxPoint x="130" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Data flow: input → timing → scoring -->
+        <mxCell id="ea3n" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="inp" target="tj">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea3o" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="tj" target="scr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea3p" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;"
+                edge="1" parent="1" source="app" target="scm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="675" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="leg" value="&lt;b&gt;Legend&lt;/b&gt;&#10;── Control flow&#10;- - Data flow"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="260" y="640" width="150" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

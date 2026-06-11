@@ -6,7 +6,6 @@ from enum import Enum
 
 class NoteKind(str, Enum):
     TAP = "tap"
-    HOLD = "hold"
     CHORD = "chord"
 
 
@@ -15,6 +14,7 @@ class ChartEvent:
     lane: int
     time_seconds: float
     kind: NoteKind = NoteKind.TAP
+    is_golden: bool = False
 
 
 @dataclass
@@ -25,6 +25,7 @@ class Note:
     kind: NoteKind = NoteKind.TAP
     judged: bool = False
     spawned: bool = False
+    is_golden: bool = False
     hit_time: float | None = None
 
     def update(self, dt: float, pixels_per_second: float) -> None:
@@ -48,4 +49,11 @@ class ScoreState:
     good_hits: int = 0
     misses: int = 0
     history: list[str] = field(default_factory=list)
+
+
+@dataclass
+class HitFeedback:
+    x: float
+    y: float
+    judgement: str
 

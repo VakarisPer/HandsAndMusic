@@ -1,17 +1,17 @@
 import json
-import math
 import os
 import time
-from dataclasses import asdict, dataclass
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 
 import pygame
 
-from GameLoop import display_user_camera, draw_finger_indicators, \
-    to_screen_coordinates
-from config import GameConfig
+from src.ui.camera_overlay import (display_user_camera,
+                                     draw_finger_indicators,
+                                     release_camera_tracker,
+                                     to_screen_coordinates)
+from src.config.settings import GameConfig
 
 LEVELS_DIR = Path("levels")
 
@@ -46,14 +46,6 @@ def _pick_audio_file():
 # Level persistence
 # ---------------------------------------------------------------------------
 
-@dataclass
-class LevelMeta:
-    name: str
-    audio_file: str
-    note_count: int
-    chart: list[dict]
-
-
 def _list_levels() -> list[str]:
     LEVELS_DIR.mkdir(parents=True, exist_ok=True)
     return sorted(
@@ -62,22 +54,15 @@ def _list_levels() -> list[str]:
     )
 
 
-def _load_level(level_name: str) -> LevelMeta | None:
-    path = LEVELS_DIR / f"{level_name}.json"
-    if not path.exists():
-        return None
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return LevelMeta(
-        name=data.get("name", level_name),
-        audio_file=data.get("audio_file", ""),
-        note_count=len(data.get("notes", [])),
-        chart=data.get("notes", []),
-    )
-
-
 def _save_level(name: str, audio_file: str, notes: list[dict]) -> Path:
     LEVELS_DIR.mkdir(parents=True, exist_ok=True)
     path = LEVELS_DIR / f"{name}.json"
+    # Store the audio path relative to the project root when possible so
+    # levels keep working if the project folder is moved or shared.
+    try:
+        audio_file = str(Path(audio_file).resolve().relative_to(Path.cwd()))
+    except ValueError:
+        pass
     payload = {
         "name": name,
         "audio_file": audio_file,
@@ -248,10 +233,16 @@ class TextInput:
         else:
             txt = self.font.render(self.placeholder, True,
                                    config.USERNAME_INPUT_PLACEHOLDER)
+        max_text_w = self.rect.width - 30
         txt_rect = txt.get_rect(midleft=(self.rect.x + 15, self.rect.centery))
+        if txt.get_width() > max_text_w and self.text:
+            txt_rect.right = self.rect.right - 15
+        old_clip = screen.get_clip()
+        screen.set_clip(self.rect.inflate(-10, 0))
         screen.blit(txt, txt_rect)
+        screen.set_clip(old_clip)
         if self.focused and self._cursor_visible:
-            cursor_x = txt_rect.right + 4 if self.text else txt_rect.left
+            cursor_x = min(txt_rect.right + 4, self.rect.right - 10) if self.text else txt_rect.left
             pygame.draw.line(screen, config.USERNAME_INPUT_CURSOR,
                              (cursor_x, self.rect.centery - 12),
                              (cursor_x, self.rect.centery + 12), 2)
@@ -470,6 +461,7 @@ def _record_chart(screen, config, audio_file):
     if not pygame.mixer.get_init():
         pygame.mixer.init()
     pygame.mixer.music.load(audio_file)
+    pygame.mixer.music.set_volume(config.MUSIC_VOLUME)
     pygame.mixer.music.play()
     start_time = time.monotonic()
 
@@ -520,11 +512,6 @@ def _record_chart(screen, config, audio_file):
 # Settings
 # ---------------------------------------------------------------------------
 
-def _truncate_path(path_str, max_len=35):
-    if len(path_str) <= max_len:
-        return path_str
-    return "..." + path_str[-(max_len - 3):]
-
 
 def run_settings(screen, config):
     clock = pygame.time.Clock()
@@ -551,10 +538,10 @@ def run_settings(screen, config):
                       (px + pw // 2 - 100, py + ph - 60, 200, 44),
                       config.UI_BUTTON_EXIT, font_size=18)
     browse_btn = Button("BROWSE MUSIC",
-                        (px + 60, py + 250, 170, 38),
+                        (px + 60, py + 270, 170, 38),
                         config.UI_ACCENT, font_size=16)
     record_btn = Button("RECORD LEVEL",
-                        (px + 250, py + 250, 170, 38),
+                        (px + 250, py + 270, 170, 38),
                         config.UI_BUTTON_SETTINGS, font_size=16)
 
     current_file = config.AUDIO_FILE
@@ -603,26 +590,25 @@ def run_settings(screen, config):
         # Music track
         ml = font_m.render("Game Music", True, config.UI_TEXT_SECONDARY)
         screen.blit(ml, (px + 60, py + 200))
-        short = _truncate_path(os.path.basename(current_file))
+        if current_file:
+            short = os.path.basename(current_file)
+        else:
+            short = "No file selected"
         mt = font_s.render(short, True, config.UI_TEXT_PRIMARY)
-        screen.blit(mt, (px + 60, py + 228))
+        screen.blit(mt, (px + 60, py + 235))
 
         # Level selection
         ll = font_m.render("Manual Level", True, config.UI_TEXT_SECONDARY)
-        screen.blit(ll, (px + 60, py + 315))
+        screen.blit(ll, (px + 60, py + 335))
 
-        level_area_y = py + 345
+        level_area_y = py + 365
         max_visible = 3
         row_h = 28
 
         if levels:
-            visible = levels[level_scroll:level_scroll + max_visible] if \
-                hasattr(run_settings, '_dummy') else levels[:max_visible]
             for i, lvl_name in enumerate(levels[:max_visible]):
                 row_y = level_area_y + i * row_h
                 is_sel = lvl_name == selected_level
-                row_color = config.LEADERBOARD_ROW_ALT if is_sel \
-                    else config.UI_PANEL[:3] + (0,)
                 row_surf = pygame.Surface((pw - 160, row_h), pygame.SRCALPHA)
                 if is_sel:
                     row_surf.fill(config.LEADERBOARD_ROW_ALT)
@@ -698,12 +684,6 @@ def run_settings(screen, config):
 # ---------------------------------------------------------------------------
 # Main menu
 # ---------------------------------------------------------------------------
-
-def _release_menu_tracker():
-    if hasattr(display_user_camera, 'tracker') and display_user_camera.tracker:
-        display_user_camera.tracker.release()
-        display_user_camera.tracker = None
-
 
 def run_menu(screen, config, score_manager):
     clock = pygame.time.Clock()
@@ -842,7 +822,7 @@ def run_menu(screen, config, score_manager):
                 pygame.display.flip()
 
                 if action == "settings":
-                    _release_menu_tracker()
+                    release_camera_tracker()
                     result, config = run_settings(screen, config)
                     if result == "exit":
                         return "", "exit"

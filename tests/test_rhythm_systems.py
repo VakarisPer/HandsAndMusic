@@ -19,7 +19,7 @@ class TestRhythmSystems(unittest.TestCase):
     def test_spawn_system_uses_offset(self) -> None:
         events = [
             ChartEvent(lane=0, time_seconds=1.0, kind=NoteKind.TAP),
-            ChartEvent(lane=1, time_seconds=1.5, kind=NoteKind.HOLD),
+            ChartEvent(lane=1, time_seconds=1.5, kind=NoteKind.TAP),
         ]
         system = SpawnSystem(spawn_offset_seconds=0.5)
         notes = system.spawn_due_notes(events, current_time=0.4)
@@ -29,10 +29,10 @@ class TestRhythmSystems(unittest.TestCase):
         self.assertEqual(notes[0].lane, 0)
 
     def test_timing_judge_windows(self) -> None:
-        judge = TimingJudge(TimingWindows(perfect_ms=60, good_ms=120, miss_ms=170))
+        judge = TimingJudge(TimingWindows(perfect_ms=60, good_ms=120, late_ms=170))
         self.assertEqual(judge.classify(1.01, 1.0), "perfect")
         self.assertEqual(judge.classify(1.10, 1.0), "good")
-        self.assertEqual(judge.classify(1.16, 1.0), "miss")
+        self.assertEqual(judge.classify(1.16, 1.0), "late")
         self.assertEqual(judge.classify(1.25, 1.0), "late")
         self.assertEqual(judge.classify(0.70, 1.0), "too_early")
 

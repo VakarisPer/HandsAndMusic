@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Hand Tracking Pipeline" id="p4">
+    <mxGraphModel dx="1000" dy="800" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+                  pageScale="1" pageWidth="1000" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="t4" value="&lt;b&gt;&lt;font size=&quot;18&quot;&gt;Hand Tracking Pipeline&lt;/font&gt;&lt;/b&gt;"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;"
+                vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="400" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1: Camera -->
+        <mxCell id="p1" value="&lt;b&gt;1. Camera Capture&lt;/b&gt;&#10;cv2.VideoCapture(0)&#10;640x480 @ 30 FPS"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2: MediaPipe -->
+        <mxCell id="p2" value="&lt;b&gt;2. MediaPipe Hands&lt;/b&gt;&#10;mediapipe.solutions.hands&#10;21 Landmark Detection&#10;Min Confidence = 0.7"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="220" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Step 3: Landmarks -->
+        <mxCell id="p3" value="&lt;b&gt;3. Landmark Extraction&lt;/b&gt;&#10;WRIST · THUMB_TIP&#10;INDEX_FINGER_TIP&#10;MIDDLE_FINGER_TIP&#10;RING_FINGER_TIP · PINKY_TIP"
+                style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="100" y="335" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Step 4: Finger States -->
+        <mxCell id="p4" value="&lt;b&gt;4. Finger Extension Check&lt;/b&gt;&#10;HelperFunctions.euclidean_distance()&#10;Compare fingertip-to-wrist vs&#10;PIP joint-to-wrist distances"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="100" y="475" width="220" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Step 5: Classification -->
+        <mxCell id="p5" value="&lt;b&gt;5. Gesture Classification&lt;/b&gt;&#10;HandGesture.recognize_hand_gesture()&#10;&#10;Based on which fingers extended:&#10;0 extended → Closed_Fist&#10;1 extended (thumb) → Thumb_Up&#10;1 extended (index) → Pointing_Up&#10;2 extended (idx+mid) → Victory&#10;5 extended → Open_Palm&#10;Other → None"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="200" width="250" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- Step 6: Lane Mapping -->
+        <mxCell id="p6" value="&lt;b&gt;6. Gesture to Lane Mapping&lt;/b&gt;&#10;InputSystem + GESTURE_TO_LANE&#10;&#10;Closed_Fist  → Lane 0&#10;Open_Palm    → Lane 1 (or ALL 5)&#10;Pointing_Up  → Lane 2&#10;Thumb_Up     → Lane 3&#10;Victory      → Lane 4&#10;&#10;Keyboard 1-5 as fallback"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="440" width="250" height="185" as="geometry" />
+        </mxCell>
+
+        <!-- Step 7: Game Engine -->
+        <mxCell id="p7" value="&lt;b&gt;7. Game Engine Input&lt;/b&gt;&#10;GameApp reads active lanes&#10;Resolves hit/miss vs&#10;falling notes on that lane"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="720" y="350" width="220" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Lane Layout -->
+        <mxCell id="lanes" value="&lt;b&gt;5-Lane Layout (1280x720)&lt;/b&gt;&#10;&#10;  L0      L1      L2      L3      L4&#10;====== ====== ====== ====== ======&#10; Fist   Palm   Point   Thumb  Victory"
+                style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="720" y="490" width="220" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Timing -->
+        <mxCell id="tw" value="&lt;b&gt;Timing Windows&lt;/b&gt;&#10;Perfect = within 60ms&#10;Good    = within 120ms&#10;Miss    = beyond 170ms"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="720" y="630" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="&lt;b&gt;Note:&lt;/b&gt; HandTrackerAdapter (src/vision/)&#10;wraps the hand_tracking/ module and&#10;normalizes output for the game engine"
+                style="shape=note;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;"
+                vertex="1" parent="1">
+          <mxGeometry x="100" y="620" width="360" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="ea4a" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p1" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea4b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p2" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea4c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p3" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea4d" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p4" target="p5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea4e" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p5" target="p6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea4f" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;"
+                edge="1" parent="1" source="p6" target="p7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

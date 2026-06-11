@@ -14,11 +14,13 @@ from src.vision.hand_tracker_adapter import HandTrackerAdapter
 class SystemFactory:
     """Factory Method implementation for game runtime systems."""
 
-    def create_audio_clock(self, audio_file: str | None = None) -> AudioClock:
-        return AudioClock(audio_file=audio_file or PROJECT.default_audio_file)
+    def create_audio_clock(self, audio_file: str | None = None,
+                           volume: float = 1.0) -> AudioClock:
+        return AudioClock(audio_file=audio_file or PROJECT.default_audio_file,
+                          volume=volume)
 
-    def create_input_system(self, gesture_map: dict[str, int]) -> InputSystem:
-        return InputSystem(gesture_map=gesture_map)
+    def create_input_system(self) -> InputSystem:
+        return InputSystem()
 
     def create_render_system(self) -> RenderSystem:
         return RenderSystem()
@@ -33,7 +35,7 @@ class SystemFactory:
         windows = TimingWindows(
             perfect_ms=RHYTHM.perfect_window_ms,
             good_ms=RHYTHM.good_window_ms,
-            miss_ms=RHYTHM.miss_window_ms,
+            late_ms=RHYTHM.late_window_ms,
         )
         return TimingJudge(windows=windows, input_offset_ms=input_offset_ms)
 

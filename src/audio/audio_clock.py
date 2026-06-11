@@ -11,6 +11,7 @@ class AudioClock:
     """Authoritative song clock based on playback start time."""
 
     audio_file: str
+    volume: float = 1.0
     _start_time: float | None = None
     _offset_seconds: float = 0.0
 
@@ -20,6 +21,7 @@ class AudioClock:
             if not pygame.mixer.get_init():
                 pygame.mixer.init()
             pygame.mixer.music.load(self.audio_file)
+            pygame.mixer.music.set_volume(self.volume)
             pygame.mixer.music.play()
         self._start_time = time.monotonic()
 
