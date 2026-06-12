@@ -14,6 +14,7 @@ from src.core.state_machine import StateMachine
 from src.domain.models import ChartEvent, HitFeedback, LaneReceptor, Note, NoteKind
 from src.systems.beat_grid import BeatGrid
 from src.systems.chart_generator import ChartGenerator
+from src.systems.song_analyzer import analyze_song
 from src.systems.particles import ParticleSystem
 
 
@@ -64,15 +65,19 @@ class GameApp:
                 if self.chart_events else RHYTHM.song_duration_seconds
             print(f"[Game] Loaded level '{level_name}': {len(self.chart_events)} notes")
         else:
-            beat_grid = BeatGrid(bpm=RHYTHM.bpm, duration_seconds=RHYTHM.song_duration_seconds)
+            analysis = analyze_song(resolved_audio) if resolved_audio else None
+            if analysis is not None:
+                beats, self._song_duration = analysis
+            else:
+                beat_grid = BeatGrid(bpm=RHYTHM.bpm, duration_seconds=RHYTHM.song_duration_seconds)
+                beats = beat_grid.generate_beats().tolist()
+                self._song_duration = RHYTHM.song_duration_seconds
             self.chart_events = ChartGenerator(
                 lane_count=GAMEPLAY.lane_count,
                 seed=GAMEPLAY.chart_seed,
                 chord_interval_beats=GAMEPLAY.chord_interval_beats,
-                double_note_chance=GAMEPLAY.double_note_chance,
                 golden_chance=GAMEPLAY.golden_note_chance,
-            ).generate(beat_grid.generate_beats().tolist())
-            self._song_duration = RHYTHM.song_duration_seconds
+            ).generate(beats)
         self.notes: list[Note] = []
         self._previous_active_lanes: set[int] = set()
         self._receptor_feedback_colors: dict[int, tuple[int, int, int]] = {
@@ -116,7 +121,8 @@ class GameApp:
 
     def run(self, username: str = "Player") -> tuple[int, int]:
         pygame.init()
-        screen = pygame.display.set_mode((WINDOW.width, WINDOW.height))
+        screen = pygame.display.set_mode((WINDOW.width, WINDOW.height),
+                                         pygame.RESIZABLE | pygame.SCALED)
         pygame.display.set_caption(f"Hands & Music - {username}")
         clock = pygame.time.Clock()
         self.render_system = self.factory.create_render_system()

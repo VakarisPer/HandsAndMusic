@@ -10,13 +10,11 @@ class ChartGenerator:
         lane_count: int,
         seed: int = 11,
         chord_interval_beats: int = 16,
-        double_note_chance: float = 0.18,
         golden_chance: float = 0.06,
     ) -> None:
         self.lane_count = lane_count
         self.seed = seed
         self.chord_interval_beats = chord_interval_beats
-        self.double_note_chance = double_note_chance
         self.golden_chance = golden_chance
 
     def generate(self, beats: list[float]) -> list[ChartEvent]:
@@ -39,12 +37,4 @@ class ChartGenerator:
             events.append(ChartEvent(
                 lane=lane, time_seconds=float(beat_time), kind=NoteKind.TAP,
                 is_golden=rng.random() < self.golden_chance))
-
-            if rng.random() < self.double_note_chance and idx % 2 == 0:
-                extra_lane_pool = [v for v in range(self.lane_count) if v != lane]
-                extra_lane = rng.choice(extra_lane_pool)
-                events.append(ChartEvent(
-                    lane=extra_lane, time_seconds=float(beat_time),
-                    kind=NoteKind.TAP,
-                    is_golden=rng.random() < self.golden_chance))
         return events

@@ -33,7 +33,6 @@ class GameplaySettings:
     fall_pixels_per_second: float = 430.0
     chart_seed: int = 2026
     chord_interval_beats: int = 16
-    double_note_chance: float = 0.18
     golden_note_chance: float = 0.06
     golden_note_points: int = 100
 

@@ -16,7 +16,8 @@ def main():
 
     pygame.init()
     screen = pygame.display.set_mode(
-        (config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+        (config.SCREEN_WIDTH, config.SCREEN_HEIGHT),
+        pygame.RESIZABLE | pygame.SCALED)
     pygame.display.set_caption("Hands & Music")
 
     from src.ui.menu import run_menu
@@ -41,7 +42,8 @@ def main():
 
             pygame.init()
             screen = pygame.display.set_mode(
-                (config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+                (config.SCREEN_WIDTH, config.SCREEN_HEIGHT),
+                pygame.RESIZABLE | pygame.SCALED)
             pygame.display.set_caption("Hands & Music")
 
     pygame.quit()
